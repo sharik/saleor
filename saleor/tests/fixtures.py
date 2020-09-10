@@ -38,6 +38,7 @@ from ..discount.models import (
     Sale,
     SaleTranslation,
     Voucher,
+    VoucherChannelListing,
     VoucherCustomer,
     VoucherTranslation,
 )
@@ -1408,8 +1409,14 @@ def product_with_images(product_type, category, media_root, channel_USD):
 
 
 @pytest.fixture
-def voucher(db):  # pylint: disable=W0613
-    return Voucher.objects.create(code="mirumee", discount_value=20)
+def voucher(channel_USD):  # pylint: disable=W0613
+    voucher = Voucher.objects.create(code="mirumee")
+    VoucherChannelListing.objects.create(
+        voucher=voucher,
+        channel=channel_USD,
+        discount=Money(20, channel_USD.currency_code),
+    )
+    return voucher
 
 
 @pytest.fixture
