@@ -59,7 +59,7 @@ def get_product_discount_on_sale(
         or product_collections.intersection(discount.collection_ids)
     )
     if is_product_on_sale:
-        return discount.sale.get_discount()
+        return discount.sale.get_discount()  # type: ignore
     raise NotApplicable("Discount not applicable for this product")
 
 
