@@ -1,7 +1,12 @@
 import graphene
 
 from ...core.permissions import DiscountPermissions
-from ..core.fields import FilterInputConnectionField
+from ..channel import ChannelContext
+from ..channel.utils import get_default_channel_slug_or_graphql_error
+from ..core.fields import (
+    ChannelContextFilterConnectionField,
+    FilterInputConnectionField,
+)
 from ..core.types import FilterInputObjectType
 from ..decorators import permission_required
 from ..translations.mutations import SaleTranslate, VoucherTranslate
@@ -52,13 +57,19 @@ class DiscountQueries(graphene.ObjectType):
         id=graphene.Argument(
             graphene.ID, description="ID of the voucher.", required=True
         ),
+        channel=graphene.String(
+            description="Slug of a channel for which the data should be returned."
+        ),
         description="Look up a voucher by ID.",
     )
-    vouchers = FilterInputConnectionField(
+    vouchers = ChannelContextFilterConnectionField(
         Voucher,
         filter=VoucherFilterInput(description="Filtering options for vouchers."),
         sort_by=VoucherSortingInput(description="Sort voucher."),
         query=graphene.String(description="Search vouchers by name or code."),
+        channel=graphene.String(
+            description="Slug of a channel for which the data should be returned."
+        ),
         description="List of the shop's vouchers.",
     )
 
@@ -71,12 +82,17 @@ class DiscountQueries(graphene.ObjectType):
         return resolve_sales(info, query, **kwargs)
 
     @permission_required(DiscountPermissions.MANAGE_DISCOUNTS)
-    def resolve_voucher(self, info, id):
-        return graphene.Node.get_node_from_global_id(info, id, Voucher)
+    def resolve_voucher(self, info, id, channel=None):
+        if channel is None:
+            channel = get_default_channel_slug_or_graphql_error()
+        voucher = graphene.Node.get_node_from_global_id(info, id, Voucher)
+        return ChannelContext(node=voucher, channel_slug=channel) if voucher else None
 
     @permission_required(DiscountPermissions.MANAGE_DISCOUNTS)
-    def resolve_vouchers(self, info, query=None, **kwargs):
-        return resolve_vouchers(info, query, **kwargs)
+    def resolve_vouchers(self, info, query=None, channel=None, **kwargs):
+        if channel is None:
+            channel = get_default_channel_slug_or_graphql_error()
+        return resolve_vouchers(info, query, channel_slug=channel, **kwargs)
 
 
 class DiscountMutations(graphene.ObjectType):
