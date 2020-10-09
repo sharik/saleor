@@ -256,6 +256,7 @@ INSTALLED_APPS = [
     "django_countries",
     "django_filters",
     "phonenumber_field",
+    "bits",
 ]
 
 
@@ -516,6 +517,7 @@ PLUGINS = [
     "saleor.payment.gateways.stripe.plugin.StripeGatewayPlugin",
     "saleor.payment.gateways.braintree.plugin.BraintreeGatewayPlugin",
     "saleor.payment.gateways.razorpay.plugin.RazorpayGatewayPlugin",
+    "bits.plugin.BitsGatewayPlugin",
 ]
 
 if (

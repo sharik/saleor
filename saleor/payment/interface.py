@@ -61,6 +61,7 @@ class PaymentData:
     currency: str
     billing: Optional[AddressData]
     shipping: Optional[AddressData]
+    payment_id: int
     order_id: Optional[int]
     customer_ip_address: Optional[str]
     customer_email: str

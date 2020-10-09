@@ -54,6 +54,7 @@ def create_payment_information(
         currency=payment.currency,
         billing=billing_address,
         shipping=shipping_address,
+        payment_id=payment.pk,
         order_id=order_id,
         customer_ip_address=payment.customer_ip_address,
         customer_id=customer_id,

@@ -182,6 +182,7 @@ def process_payment(
 
 def _get_client(**connection_params):
     stripe.api_key = connection_params.get("private_key")
+    stripe.api_version = '2020-03-02'
     return stripe
 
 
