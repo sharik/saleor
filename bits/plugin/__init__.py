@@ -66,7 +66,11 @@ class BitsGatewayPlugin(BasePlugin):
         amount = payment_information.amount
 
         api = BitsAPI.from_payment_data(payment_information)
-        data = api.create_order_payment(amount=float(amount))
+        data = api.create_order_payment(amount=float(amount), payment_id=payment_information.payment_id)
+
+        raw_response = {'response': data}
+        if data.get('require_action'):
+            raw_response['action_required_data'] = {'client_secret': data['require_action_secret']}
 
         return GatewayResponse(
             transaction_id=data.get('id'),
@@ -76,7 +80,7 @@ class BitsGatewayPlugin(BasePlugin):
             currency=payment_information.currency,
             error=None,
             is_success=data.get('success'),
-            raw_response=data
+            raw_response=raw_response
         )
 
     @require_active_plugin
@@ -118,7 +122,7 @@ class BitsGatewayPlugin(BasePlugin):
         data = api.cancel_order_payment(payment_information.token)
 
         return GatewayResponse(
-            transaction_id=data.get('id'),
+            transaction_id=payment_information.token,
             action_required=False,
             kind=kind,
             amount=payment_information.amount,
@@ -132,6 +136,28 @@ class BitsGatewayPlugin(BasePlugin):
             self, payment_information: "PaymentData", previous_value
     ) -> "GatewayResponse":
         return self.authorize_payment(payment_information, self._get_gateway_config())
+
+    @require_active_plugin
+    def verify_payment(self, payment_information: "PaymentData", previous_value) -> "GatewayResponse":
+        kind = TransactionKind.AUTH
+        api = BitsAPI.from_payment_data(payment_information)
+        data = api.verify_order_payment(payment_information.token)
+
+        raw_response = {'response': data}
+        if data.get('require_action'):
+            raw_response['action_required_data'] = {'client_secret': data['require_action_secret']}
+
+        return GatewayResponse(
+            transaction_id=data.get('id'),
+            action_required=data.get('require_action'),
+            kind=kind,
+            amount=payment_information.amount,
+            currency=payment_information.currency,
+            error=None,
+            is_success=data.get('success'),
+            raw_response=raw_response
+        )
+
 
     @require_active_plugin
     def get_payment_config(self, previous_value):

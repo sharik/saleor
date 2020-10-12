@@ -190,6 +190,27 @@ def confirm(payment: Payment) -> Transaction:
         gateway_response=response,
     )
 
+@payment_postprocess
+@raise_payment_error
+@require_active_payment
+def verify_payment(payment: Payment, transaction: Transaction) -> Transaction:
+    plugin_manager = get_plugins_manager()
+    token = transaction.token
+
+    payment_data = create_payment_information(payment=payment, payment_token=token)
+    response, error = _fetch_gateway_response(
+        plugin_manager.verify_payment, payment.gateway, payment_data
+    )
+    action_required = response is not None and response.action_required
+
+    return create_transaction(
+        payment=payment,
+        kind=TransactionKind.CONFIRM,
+        payment_information=payment_data,
+        error_msg=error,
+        action_required=action_required,
+        gateway_response=response,
+    )
 
 def list_payment_sources(gateway: str, customer_id: str) -> List["CustomerSource"]:
     plugin_manager = get_plugins_manager()

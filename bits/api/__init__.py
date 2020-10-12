@@ -84,7 +84,7 @@ class BitsAPI(object):
 
         return response.json()
 
-    def create_order_payment(self, amount: float, **kwargs):
+    def create_order_payment(self, amount: float, payment_id: str, **kwargs):
         segments = (
             'api',
             'v1',
@@ -94,19 +94,20 @@ class BitsAPI(object):
 
         payload = {
             'type': 'storeOrder',
-            'amount': amount
+            'amount': amount,
+            'paymentId': payment_id,
         }
         payload.update(kwargs)
 
         return self._do_post(url, payload)
 
-    def capture_order_payment(self, payment_id, order_id=None, **kwargs):
+    def capture_order_payment(self, external_id, order_id=None, **kwargs):
         segments = (
             'api',
             'v1',
             'orders',
-            payment_id,
-            'confirm'
+            external_id,
+            'capture'
         )
 
         url = build_url(self.API_URL, *segments)
@@ -126,6 +127,29 @@ class BitsAPI(object):
 
         url = build_url(self.API_URL, *segments)
         return self._do_delete(url)
+
+    def verify_order_payment(self, payment_id):
+        segments = (
+            'api',
+            'v1',
+            'orders',
+            payment_id,
+            'verify'
+        )
+
+        url = build_url(self.API_URL, *segments)
+        return self._do_post(url, data={})
+
+    def get_order_payment(self, payment_id):
+        segments = (
+            'api',
+            'v1',
+            'orders',
+            payment_id
+        )
+
+        url = build_url(self.API_URL, *segments)
+        return self._do_get(url)
 
     def refund_order_payment(self):
         raise NotImplementedError

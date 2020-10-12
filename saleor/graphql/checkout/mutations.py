@@ -692,6 +692,13 @@ class CheckoutComplete(BaseMutation):
         ),
     )
 
+    confirmation_data = graphene.JSONString(
+        required=False,
+        description=(
+            "Confirmation data used to process additional authorization steps."
+        ),
+    )
+
     class Arguments:
         checkout_id = graphene.ID(description="Checkout ID.", required=True)
         store_source = graphene.Boolean(
@@ -707,6 +714,14 @@ class CheckoutComplete(BaseMutation):
                 "see the order details. URL in RFC 1808 format."
             ),
         )
+
+        payment_data = graphene.JSONString(
+            required=False,
+            description=(
+                "Client-side generated data required to finalize the payment."
+            ),
+        )
+
 
     class Meta:
         description = (
@@ -780,8 +795,11 @@ class CheckoutComplete(BaseMutation):
             shipping_address = AddressData(**shipping_address.as_data())
 
         payment_confirmation = payment.to_confirm
+        last_transaction = payment.get_last_transaction(include_failed=False)
         try:
-            if payment_confirmation:
+            if last_transaction and last_transaction.action_required:
+                txn = gateway.verify_payment(payment=payment, transaction=last_transaction)
+            elif payment_confirmation:
                 txn = gateway.confirm(payment)
             else:
                 txn = gateway.process_payment(
@@ -823,7 +841,7 @@ class CheckoutComplete(BaseMutation):
             # return the success response with the newly created order data
             return CheckoutComplete(order=order, confirmation_needed=False)
 
-        return CheckoutComplete(order=None, confirmation_needed=True)
+        return CheckoutComplete(order=None, confirmation_needed=True, confirmation_data=txn.gateway_response.get('action_required_data'))
 
 
 class CheckoutAddPromoCode(BaseMutation):

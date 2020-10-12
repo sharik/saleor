@@ -95,8 +95,12 @@ class Payment(models.Model):
             self.charge_status,
         )
 
-    def get_last_transaction(self):
-        return max(self.transactions.all(), default=None, key=attrgetter("pk"))
+    def get_last_transaction(self, include_failed=True):
+        transaction_q = self.transactions
+        if include_failed is False:
+            transaction_q = transaction_q.filter(is_success=True)
+
+        return max(transaction_q.all(), default=None, key=attrgetter("pk"))
 
     def get_total(self):
         return Money(self.total, self.currency or settings.DEFAULT_CURRENCY)
