@@ -122,11 +122,12 @@ class BitsAPI(object):
             'api',
             'v1',
             'orders',
-            payment_id
+            payment_id,
+            'cancel'
         )
 
         url = build_url(self.API_URL, *segments)
-        return self._do_delete(url)
+        return self._do_post(url, {})
 
     def verify_order_payment(self, payment_id):
         segments = (

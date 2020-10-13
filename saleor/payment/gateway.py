@@ -20,7 +20,6 @@ if TYPE_CHECKING:
     # flake8: noqa
     from ..payment.interface import CustomerSource
 
-
 logger = logging.getLogger(__name__)
 ERROR_MSG = "Oops! Something went wrong."
 GENERIC_TRANSACTION_ERROR = "Transaction was unsuccessful"
@@ -54,11 +53,22 @@ def require_active_payment(fn: Callable) -> Callable:
     return wrapped
 
 
+def require_active_payment_at_end(fn: Callable) -> Callable:
+    def wrapped(payment: Payment, *args, **kwargs):
+        txn = fn(payment, *args, **kwargs)
+        if txn.kind == TransactionKind.VOID:
+            raise PaymentError("This payment was canceled.")
+        return txn
+
+    return wrapped
+
+
+@require_active_payment_at_end
 @payment_postprocess
 @raise_payment_error
 @require_active_payment
 def process_payment(
-    payment: Payment, token: str, store_source: bool = False
+        payment: Payment, token: str, store_source: bool = False
 ) -> Transaction:
     plugin_manager = get_plugins_manager()
     payment_data = create_payment_information(
@@ -78,6 +88,7 @@ def process_payment(
     )
 
 
+@require_active_payment_at_end
 @payment_postprocess
 @raise_payment_error
 @require_active_payment
@@ -99,11 +110,12 @@ def authorize(payment: Payment, token: str, store_source: bool = False) -> Trans
     )
 
 
+@require_active_payment_at_end
 @payment_postprocess
 @raise_payment_error
 @require_active_payment
 def capture(
-    payment: Payment, amount: Decimal = None, store_source: bool = False
+        payment: Payment, amount: Decimal = None, store_source: bool = False
 ) -> Transaction:
     plugin_manager = get_plugins_manager()
     if amount is None:
@@ -172,6 +184,7 @@ def void(payment: Payment) -> Transaction:
     )
 
 
+@require_active_payment_at_end
 @payment_postprocess
 @raise_payment_error
 @require_active_payment
@@ -190,6 +203,8 @@ def confirm(payment: Payment) -> Transaction:
         gateway_response=response,
     )
 
+
+@require_active_payment_at_end
 @payment_postprocess
 @raise_payment_error
 @require_active_payment
@@ -211,6 +226,7 @@ def verify_payment(payment: Payment, transaction: Transaction) -> Transaction:
         action_required=action_required,
         gateway_response=response,
     )
+
 
 def list_payment_sources(gateway: str, customer_id: str) -> List["CustomerSource"]:
     plugin_manager = get_plugins_manager()
@@ -244,7 +260,7 @@ def _fetch_gateway_response(fn, *args, **kwargs):
 
 
 def _get_past_transaction_token(
-    payment: Payment, kind: str  # for kind use "TransactionKind"
+        payment: Payment, kind: str  # for kind use "TransactionKind"
 ):
     txn = payment.transactions.filter(kind=kind, is_success=True).first()
     if txn is None:
