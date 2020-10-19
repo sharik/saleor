@@ -32,21 +32,30 @@ def handle_exception(transaction_kind: "TransactionKind"):
                 return fn(self, payment_information, *args, **kwargs)
             except RequestException as e:
                 is_success = False
+                exception_message = None
                 try:
                     data = e.response.json()
                     if data.get('code', None) == 302:
                         # payment cancelled
                         kind = TransactionKind.VOID
-                        data.get('message', str(e))
+                        exception_message = data.get('message', str(e))
                         is_success = True
+                    else:
+                        # payment validation error like action not allowed
+                        try:
+                            exception_message = data.get('detail', {}).get('message')
+                            if not exception_message:
+                                exception_message = data.get('message')
+                        except (AttributeError, IndexError, ValueError, TypeError):
+                            pass
                 except (TypeError, JSONDecodeError, ValueError):
                     if e.response.content:
-                        data = e.response.content.decode('utf-8')
+                        exception_message = e.response.content.decode('utf-8')
                     else:
-                        data = 'An error occurred while making a {} request to {}'.format(
+                        exception_message = 'An error occurred while making a {} request to {}'.format(
                             e.response.request.method, e.response.request.url)
                 except AttributeError:
-                    data = str(e)
+                    exception_message = str(e)
 
                 return GatewayResponse(
                     is_success=is_success,
@@ -54,7 +63,7 @@ def handle_exception(transaction_kind: "TransactionKind"):
                     transaction_id=payment_information.token,
                     amount=payment_information.amount,
                     currency=payment_information.currency,
-                    error=data if isinstance(data, str) else str(e),
+                    error=exception_message if isinstance(exception_message, str) else str(e),
                     kind=str(kind),
                     raw_response=data,
                     customer_id=payment_information.customer_id,

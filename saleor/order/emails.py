@@ -15,6 +15,8 @@ CONFIRM_FULFILLMENT_TEMPLATE = "order/confirm_fulfillment"
 UPDATE_FULFILLMENT_TEMPLATE = "order/update_fulfillment"
 CONFIRM_PAYMENT_TEMPLATE = "order/payment/confirm_payment"
 
+ENABLE_FULLFILLMENT_EMAIL = False
+
 
 def collect_staff_order_notification_data(
     order_pk: int, template: str, redirect_url: str
@@ -110,7 +112,8 @@ def send_fulfillment_confirmation(order_pk, fulfillment_pk):
 
 
 def send_fulfillment_confirmation_to_customer(order, fulfillment, user):
-    send_fulfillment_confirmation.delay(order.pk, fulfillment.pk)
+    if not ENABLE_FULLFILLMENT_EMAIL:
+        send_fulfillment_confirmation.delay(order.pk, fulfillment.pk)
 
     events.email_sent_event(
         order=order, user=user, email_type=events.OrderEventsEmails.FULFILLMENT
@@ -126,6 +129,9 @@ def send_fulfillment_confirmation_to_customer(order, fulfillment, user):
 
 @app.task
 def send_fulfillment_update(order_pk, fulfillment_pk):
+    if not ENABLE_FULLFILLMENT_EMAIL:
+        return
+
     email_data = collect_data_for_fullfillment_email(
         order_pk, UPDATE_FULFILLMENT_TEMPLATE, fulfillment_pk
     )
