@@ -1,6 +1,6 @@
 from graphene import relay
 
-from ...page import models
+from ...page import models, exporter
 from ..core.connection import CountableDjangoObjectType
 from ..translations.fields import TranslationField
 from ..translations.types import PageTranslation
@@ -28,3 +28,8 @@ class Page(CountableDjangoObjectType):
         ]
         interfaces = [relay.Node]
         model = models.Page
+
+    @staticmethod
+    def resolve_content(root: models.Page, _info):
+        return root.content or exporter.html.render(root.content_json)
+

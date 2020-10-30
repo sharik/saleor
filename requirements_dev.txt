@@ -178,3 +178,4 @@ webencodings==0.5.1
 wrapt==1.12.1
 yarl==1.4.2; python_version >= "3.6"
 gunicorn==19.9.0
+draftjs_exporter==4.1.1
