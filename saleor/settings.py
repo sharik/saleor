@@ -214,6 +214,9 @@ MIDDLEWARE = [
     "saleor.core.middleware.plugins",
 ]
 
+if DEBUG:
+    MIDDLEWARE.insert(0, "bits.middleware.GraphqlErrorLogMiddleware")
+
 INSTALLED_APPS = [
     # External apps that need to go before django's
     "storages",

@@ -27,6 +27,7 @@ def handle_exception(transaction_kind: "TransactionKind"):
     def _wrap(fn):
         def wrapped(self, payment_information: "PaymentData", *args, **kwargs):
             kind = transaction_kind
+            data = None
 
             try:
                 return fn(self, payment_information, *args, **kwargs)
