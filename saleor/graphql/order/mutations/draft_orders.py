@@ -1,7 +1,14 @@
+from base64 import b64decode
+
 import graphene
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.core.files.base import ContentFile
+from django.core.files.uploadedfile import UploadedFile
+from django.utils.crypto import get_random_string
 from graphene.types import InputObjectType
 
+from bits.models import BitsDigitalContent
+from ...core.types import Upload
 from ....account.models import User
 from ....core.exceptions import InsufficientStock
 from ....core.permissions import OrderPermissions
@@ -31,6 +38,9 @@ from ..utils import validate_draft_order
 class OrderLineInput(graphene.InputObjectType):
     quantity = graphene.Int(
         description="Number of variant items ordered.", required=True
+    )
+    digital_file = Upload(
+        required=False, description="Represents an file in a multipart request."
     )
 
 
@@ -413,6 +423,14 @@ class DraftOrderLineUpdate(ModelMutation):
     def clean_input(cls, info, instance, data):
         instance.old_quantity = instance.quantity
         cleaned_input = super().clean_input(info, instance, data)
+
+        raw_digital_file = data.get('digital_file')
+        if raw_digital_file:
+            header, encoded = raw_digital_file.split(",", 1)
+            digital_file = ContentFile(b64decode(encoded))
+            cleaned_input['digital_file'] = digital_file
+            return cleaned_input
+
         if instance.order.status != OrderStatus.DRAFT:
             raise ValidationError(
                 {
@@ -434,6 +452,39 @@ class DraftOrderLineUpdate(ModelMutation):
                 }
             )
         return cleaned_input
+
+    @classmethod
+    def perform_mutation(cls, _root, info, **data):
+        """Perform model mutation.
+
+        Depending on the input data, `mutate` either creates a new instance or
+        updates an existing one. If `id` argument is present, it is assumed
+        that this is an "update" mutation. Otherwise, a new instance is
+        created based on the model associated with this mutation.
+        """
+        instance = cls.get_instance(info, **data)
+        data = data.get("input")
+        cleaned_input = cls.clean_input(info, instance, data)
+        if not cleaned_input.get('digital_file'):
+
+
+            instance = cls.construct_instance(instance, cleaned_input)
+            cls.clean_instance(info, instance)
+            cls.save(info, instance, cleaned_input)
+            cls._save_m2m(info, instance, cleaned_input)
+        else:
+            try:
+                instance.bits_digital_content.delete()
+            except ObjectDoesNotExist:
+                pass
+
+            digital_content = BitsDigitalContent(product_variant=instance.variant,
+                                                 line=instance)
+            digital_content.content_file.save(get_random_string(10), cleaned_input['digital_file'])
+            digital_content.save()
+
+        return cls.success_response(instance)
+
 
     @classmethod
     def save(cls, info, instance, cleaned_input):

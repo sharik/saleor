@@ -1,5 +1,5 @@
 import graphene
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from graphene import relay
 from graphql_jwt.exceptions import PermissionDenied
 
@@ -244,6 +244,14 @@ class OrderLine(CountableDjangoObjectType):
         required=True, description="Variant name in the customer's language"
     )
 
+    digital_file_url = graphene.String(
+        required=False, description="Digital file URL"
+    )
+
+    is_digital = graphene.Boolean(
+        required=False, description="Is digital"
+    )
+
     class Meta:
         description = "Represents order line of particular order."
         model = models.OrderLine
@@ -282,6 +290,21 @@ class OrderLine(CountableDjangoObjectType):
     @staticmethod
     def resolve_translated_variant_name(root: models.OrderLine, _info):
         return root.translated_variant_name
+
+    @staticmethod
+    def resolve_digital_file_url(root: models.OrderLine, _info):
+        if root.is_digital:
+            try:
+                bits_digital_content = root.bits_digital_content
+                url = bits_digital_content.content_file.url
+                return _info.context.build_absolute_uri(url)
+            except ObjectDoesNotExist:
+                return
+
+
+    @staticmethod
+    def resolve_is_digital(root: models.OrderLine, info):
+        return root.is_digital
 
 
 class Order(CountableDjangoObjectType):

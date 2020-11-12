@@ -1,13 +1,22 @@
+from base64 import b64decode
+
 import graphene
 from django.contrib.auth.backends import UserModel
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.files.base import ContentFile
+from django.utils.crypto import get_random_string
 from graphql_jwt.shortcuts import get_token
 
 from saleor.account import models
+from saleor.core.permissions import OrderPermissions
 from saleor.graphql.account.mutations.base import BaseCustomerCreate, UserCreateInput
-from saleor.graphql.core.types.common import AccountError
+from saleor.graphql.core.mutations import BaseMutation
+from saleor.graphql.core.types import Upload
+from saleor.graphql.core.types.common import AccountError, OrderError
+from saleor.graphql.order.types import OrderLine
 
 from ..api import BitsAPI
-from ..models import BitsUser
+from ..models import BitsUser, BitsDigitalContent
 
 
 class BitsTokenExchange(BaseCustomerCreate):
@@ -125,22 +134,56 @@ class BitsTokenExchange(BaseCustomerCreate):
             instance.set_password(None)
         return instance
 
-# @classmethod
-    # def mutate(cls, root, info, **data):
-    #     access_token = data.get('token')
-    #     user_data = get_user_bits_info(access_token)
-    #
-    #     return super().mutate(root, info, **data)
 
-    # @classmethod
-    # def get_instance(cls, info, **data):
-    #     object_id = data.get("id")
-    #     if object_id:
-    #         model_type = cls.get_type_for_model()
-    #         instance = cls.get_node_or_error(info, object_id, only_type=model_type)
-    #     else:
-    #         instance = cls._meta.model()
-    #     return instance
+class BitsDigitalContentCreateInput(graphene.InputObjectType):
+    file = Upload(
+        required=True, description="Represents an image file in a multipart request."
+    )
+    name = graphene.String(description="File name")
+
+
+class BitsDigitalContentUpdate(BaseMutation):
+    line = graphene.Field(OrderLine)
+
+    class Arguments:
+        id = graphene.ID(description="ID of the order line to update.", required=True)
+        input = BitsDigitalContentCreateInput(
+            required=True, description="Fields required to create a product image."
+        )
+
+    class Meta:
+        description = (
+            "Upload a digital content for order line. This mutation must be sent as a `multipart` "
+            "request. More detailed specs of the upload format can be found here: "
+            "https://github.com/jaydenseric/graphql-multipart-request-spec"
+        )
+        permissions = (OrderPermissions.MANAGE_ORDERS,)
+        error_type_class = OrderError
+        error_type_field = "errors"
+
+    @classmethod
+    def perform_mutation(cls, _root, info, **data):
+        input_data = data.get("input")
+        object_id = data.get('id')
+        instance = cls.get_node_or_error(info, object_id, only_type=OrderLine)
+
+        raw_file = input_data.get('file')
+        name = input_data.get('name', get_random_string(10))
+        header, encoded = raw_file.split(",", 1)
+        file = ContentFile(b64decode(encoded), name)
+
+        try:
+            instance.bits_digital_content.delete()
+        except ObjectDoesNotExist:
+            pass
+
+        digital_content = BitsDigitalContent(product_variant=instance.variant,
+                                             line=instance)
+        digital_content.content_file.save(name,
+                                          file)
+        digital_content.save()
+
+        return BitsDigitalContentUpdate(line=instance, errors=[])
 
 
 

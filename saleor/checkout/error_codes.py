@@ -7,6 +7,7 @@ class CheckoutErrorCode(Enum):
     GRAPHQL_ERROR = "graphql_error"
     PRODUCT_NOT_PUBLISHED = "product_not_published"
     INSUFFICIENT_STOCK = "insufficient_stock"
+    MISSED_DIGITAL_CONTENT = 'missed_digital_content'
     INVALID = "invalid"
     INVALID_SHIPPING_METHOD = "invalid_shipping_method"
     NOT_FOUND = "not_found"

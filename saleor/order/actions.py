@@ -2,10 +2,11 @@ import logging
 from decimal import Decimal
 from typing import TYPE_CHECKING, Dict, List
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 
 from ..core import analytics
-from ..core.exceptions import InsufficientStock
+from ..core.exceptions import InsufficientStock, MissedDigitalContent
 from ..payment import ChargeStatus, CustomPaymentChoices, PaymentError
 from ..plugins.manager import get_plugins_manager
 from ..warehouse.management import deallocate_stock_for_order, decrease_stock
@@ -270,8 +271,16 @@ def _create_fulfillment_lines(
             if stock is None:
                 error_context = {"order_line": order_line, "warehouse_pk": warehouse_pk}
                 raise InsufficientStock(order_line.variant, error_context)
+            if order_line.is_digital and not hasattr(order_line, 'bits_digital_content'):
+                error_context = {"order_line": order_line}
+                raise MissedDigitalContent(order_line, error_context)
+
             fulfill_order_line(order_line, quantity, warehouse_pk)
             if order_line.is_digital:
+                try:
+                    order_line.digital_content_url.delete()
+                except ObjectDoesNotExist:
+                    pass
                 order_line.variant.digital_content.urls.create(line=order_line)
             fulfillment_lines.append(
                 FulfillmentLine(
