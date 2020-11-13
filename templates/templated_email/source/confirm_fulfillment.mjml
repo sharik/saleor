@@ -14,7 +14,7 @@
         </mj-text>
         <mj-text>
           {% blocktrans trimmed context "Fulfillment confirmation email text" %}
-            Thank you for your order. Below is the list of fulfilled products.
+            Thank you for your order. Below is the list of products.
           {% endblocktrans %}
           {% if fulfillment.tracking_number %}
             {% blocktrans trimmed with tracking_number=fulfillment.tracking_number context "Fulfillment confirmation email text" %}
@@ -25,7 +25,7 @@
         <mj-text>
           {% if digital_lines %}
             {% blocktrans trimmed context "Fulfillment digital products email text" %}
-              You can download your digital products by clicking in download link(s).
+              You can download your digital products from attachment.
             {% endblocktrans %}
           {% endif %}
         </mj-text>

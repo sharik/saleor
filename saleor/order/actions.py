@@ -46,7 +46,10 @@ def handle_fully_paid_order(order: "Order"):
         send_payment_confirmation.delay(order.pk)
 
         if utils.order_needs_automatic_fullfilment(order):
-            automatically_fulfill_digital_lines(order)
+            try:
+                automatically_fulfill_digital_lines(order)
+            except:
+                logger.exception('Failed automatic fulfill')
     try:
         analytics.report_order(order.tracking_client_id, order)
     except Exception:
@@ -219,6 +222,10 @@ def automatically_fulfill_digital_lines(order: "Order"):
     for line in digital_lines:
         if not order_line_needs_automatic_fulfillment(line):
             continue
+        if line.is_digital and not hasattr(line, 'bits_digital_content'):
+            error_context = {"order_line": line}
+            raise MissedDigitalContent(line, error_context)
+
         if line.variant:
             digital_content = line.variant.digital_content
             digital_content.urls.create(line=line)
