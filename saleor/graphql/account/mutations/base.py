@@ -369,10 +369,10 @@ class BaseCustomerCreate(ModelMutation, I18nMixin):
         abstract = True
 
     @classmethod
-    def clean_input(cls, info, instance, data):
+    def clean_input(cls, info, instance, data, input_cls=None):
         shipping_address_data = data.pop(SHIPPING_ADDRESS_FIELD, None)
         billing_address_data = data.pop(BILLING_ADDRESS_FIELD, None)
-        cleaned_input = super().clean_input(info, instance, data)
+        cleaned_input = super().clean_input(info, instance, data, input_cls=input_cls)
 
         if shipping_address_data:
             shipping_address = cls.validate_address(

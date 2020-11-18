@@ -219,6 +219,9 @@ MIDDLEWARE = [
     "saleor.core.middleware.jwt_refresh_token_middleware",
 ]
 
+if DEBUG:
+    MIDDLEWARE.insert(0, "bits.middleware.GraphqlErrorLogMiddleware")
+
 INSTALLED_APPS = [
     # External apps that need to go before django's
     "storages",
@@ -263,6 +266,7 @@ INSTALLED_APPS = [
     "django_countries",
     "django_filters",
     "phonenumber_field",
+    "bits",
 ]
 
 
@@ -519,6 +523,7 @@ PLUGINS = [
     "saleor.payment.gateways.razorpay.plugin.RazorpayGatewayPlugin",
     "saleor.payment.gateways.adyen.plugin.AdyenGatewayPlugin",
     "saleor.plugins.invoicing.plugin.InvoicingPlugin",
+    "bits.plugin.BitsGatewayPlugin",
 ]
 
 # Plugin discovery

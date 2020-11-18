@@ -1,6 +1,6 @@
 from graphene import Boolean, relay
 
-from ...page import models
+from ...page import models, exporter
 from ..core.connection import CountableDjangoObjectType
 from ..meta.deprecated.resolvers import resolve_meta, resolve_private_meta
 from ..meta.types import ObjectWithMetadata
@@ -41,3 +41,8 @@ class Page(CountableDjangoObjectType):
 
     def resolve_is_published(root: models.Page, _info):
         return root.is_visible
+
+    @staticmethod
+    def resolve_content(root: models.Page, _info):
+        return root.content or exporter.html.render(root.content_json)
+

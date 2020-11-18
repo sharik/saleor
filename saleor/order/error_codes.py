@@ -26,4 +26,5 @@ class OrderErrorCode(Enum):
     VOID_INACTIVE_PAYMENT = "void_inactive_payment"
     ZERO_QUANTITY = "zero_quantity"
     INSUFFICIENT_STOCK = "insufficient_stock"
+    MISSED_DIGITAL_CONTENT = 'missed_digital_content'
     DUPLICATED_INPUT_ITEM = "duplicated_input_item"

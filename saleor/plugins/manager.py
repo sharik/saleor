@@ -374,6 +374,12 @@ class PluginsManager(PaymentInterface):
             )
         return default_value
 
+    def verify_payment(
+        self, gateway: str, payment_information: "PaymentData"
+    ) -> "GatewayResponse":
+        method_name = "verify_payment"
+        return self.__run_payment_method(gateway, method_name, payment_information)
+
     def get_client_token(self, gateway, token_config: "TokenConfig") -> str:
         method_name = "get_client_token"
         default_value = None

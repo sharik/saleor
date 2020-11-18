@@ -203,16 +203,12 @@
           <thead class="table-header-row" style="border-bottom: 2px solid #000;">
             <tr>
               <th style="padding: 5px; text-align: left;" align="left">{% trans "Item" context "Ordered item name" %}</th>
-              <th style="padding: 5px; text-align: right;" align="right">{% trans "Download Link" context "Ordered item download links" %}</th>
             </tr>
           </thead>
           <tbody>
             {% for line in digital_lines %}
               <tr class="table-item-row" style="border-bottom: 1px solid #D3D1D0;">
                 <td style="padding: 5px;">{% display_translated_order_line_name line.order_line %}</td>
-                <td style="padding: 5px; text-align: right;" align="right">
-                  <a href="{{ line.order_line.digital_content_url.get_absolute_url }}">Link</a>
-                </td>
               </tr>
             {% endfor %}
           </tbody>
@@ -340,7 +336,8 @@
               <td align="center" style="font-size: 0px; padding: 10px 25px; word-break: break-word;">
                 
       <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:center;color:#000000;">{% blocktrans trimmed context "Base email footer" %}
-        Sincerely, {{ site_name }}
+        Best,
+        Bits x
       {% endblocktrans %}</div>
     
               </td>

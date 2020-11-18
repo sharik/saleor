@@ -22,7 +22,6 @@ if TYPE_CHECKING:
     # flake8: noqa
     from ..payment.interface import CustomerSource, PaymentGateway
 
-
 logger = logging.getLogger(__name__)
 ERROR_MSG = "Oops! Something went wrong."
 GENERIC_TRANSACTION_ERROR = "Transaction was unsuccessful."
@@ -56,6 +55,16 @@ def require_active_payment(fn: Callable) -> Callable:
     return wrapped
 
 
+def require_active_payment_at_end(fn: Callable) -> Callable:
+    def wrapped(payment: Payment, *args, **kwargs):
+        txn = fn(payment, *args, **kwargs)
+        if txn.kind == TransactionKind.VOID:
+            raise PaymentError("This payment was canceled.")
+        return txn
+
+    return wrapped
+
+
 def with_locked_payment(fn: Callable) -> Callable:
     """Lock payment to protect from asynchronous modification."""
 
@@ -67,6 +76,7 @@ def with_locked_payment(fn: Callable) -> Callable:
     return wrapped
 
 
+@require_active_payment_at_end
 @raise_payment_error
 @require_active_payment
 @with_locked_payment
@@ -101,6 +111,7 @@ def process_payment(
     )
 
 
+@require_active_payment_at_end
 @raise_payment_error
 @require_active_payment
 @with_locked_payment
@@ -125,6 +136,7 @@ def authorize(payment: Payment, token: str, store_source: bool = False) -> Trans
     )
 
 
+@require_active_payment_at_end
 @payment_postprocess
 @raise_payment_error
 @require_active_payment
@@ -202,6 +214,7 @@ def void(payment: Payment) -> Transaction:
     )
 
 
+@require_active_payment_at_end
 @raise_payment_error
 @require_active_payment
 @with_locked_payment
@@ -221,6 +234,31 @@ def confirm(payment: Payment, additional_data: Optional[dict] = None) -> Transac
     action_required = response is not None and response.action_required
     if response and response.payment_method_info:
         update_payment_method_details(payment, response)
+    return get_already_processed_transaction_or_create_new_transaction(
+        payment=payment,
+        kind=TransactionKind.CONFIRM,
+        payment_information=payment_data,
+        action_required=action_required,
+        error_msg=error,
+        gateway_response=response,
+    )
+
+
+@require_active_payment_at_end
+@raise_payment_error
+@require_active_payment
+@with_locked_payment
+@payment_postprocess
+def verify_payment(payment: Payment, transaction: Transaction) -> Transaction:
+    plugin_manager = get_plugins_manager()
+    token = transaction.token
+
+    payment_data = create_payment_information(payment=payment, payment_token=token)
+    response, error = _fetch_gateway_response(
+        plugin_manager.verify_payment, payment.gateway, payment_data
+    )
+    action_required = response is not None and response.action_required
+
     return get_already_processed_transaction_or_create_new_transaction(
         payment=payment,
         kind=TransactionKind.CONFIRM,

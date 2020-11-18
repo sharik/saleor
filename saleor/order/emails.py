@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING, Optional
 from urllib.parse import urlencode
 
-from templated_email import send_templated_mail
+from templated_email import send_templated_mail, InlineImage
 
-from ..account.models import StaffNotificationRecipient
+from ..account.models import StaffNotificationRecipient, User
 from ..celeryconf import app
 from ..core.emails import get_email_context
 from ..core.utils.url import prepare_url
@@ -24,6 +24,8 @@ CONFIRM_PAYMENT_TEMPLATE = "order/payment/confirm_payment"
 ORDER_CANCEl_TEMPLATE = "order/order_cancel"
 ORDER_REFUND_TEMPLATE = "order/order_refund"
 
+ENABLE_FULLFILLMENT_EMAIL = False
+
 
 def collect_staff_order_notification_data(
     order_pk: int, template: str, redirect_url: str
@@ -32,10 +34,13 @@ def collect_staff_order_notification_data(
     staff_notifications = StaffNotificationRecipient.objects.filter(
         active=True, user__is_active=True, user__is_staff=True
     )
+    staff = User.objects.staff()
     recipient_emails = [
         notification.get_email() for notification in staff_notifications
     ]
-    data["recipient_list"] = recipient_emails
+    staff_emails = [user.email for user in staff]
+
+    data["recipient_list"] = list(set(recipient_emails + staff_emails))
     return data
 
 
@@ -78,6 +83,7 @@ def collect_data_for_fulfillment_email(order_pk, template, fulfillment_pk):
     lines = fulfillment.lines.all()
     physical_lines = [line for line in lines if not line.order_line.is_digital]
     digital_lines = [line for line in lines if line.order_line.is_digital]
+    digital_attachments = [(line.order_line.bits_digital_content.content_file.name, line.order_line.bits_digital_content.content_file.read(), None) for line in lines if line.order_line.is_digital]
     context = email_data["context"]
     context.update(
         {
@@ -86,6 +92,7 @@ def collect_data_for_fulfillment_email(order_pk, template, fulfillment_pk):
             "digital_lines": digital_lines,
         }
     )
+    email_data['attachments'] = digital_attachments
     return email_data
 
 

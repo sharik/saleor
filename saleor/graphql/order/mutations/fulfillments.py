@@ -4,7 +4,7 @@ import graphene
 from django.core.exceptions import ValidationError
 from django.template.defaultfilters import pluralize
 
-from ....core.exceptions import InsufficientStock
+from ....core.exceptions import InsufficientStock, MissedDigitalContent
 from ....core.permissions import OrderPermissions
 from ....order import models
 from ....order.actions import (
@@ -261,6 +261,15 @@ class OrderFulfill(BaseMutation):
                             "order_line": order_line_global_id,
                             "warehouse": warehouse_global_id,
                         },
+                    )
+                }
+            )
+        except MissedDigitalContent as exc:
+            err_msg = "Order Line does't have digital content"
+            raise ValidationError(
+                {
+                    "orderLine": ValidationError(
+                        err_msg, code=OrderErrorCode.MISSED_DIGITAL_CONTENT
                     )
                 }
             )

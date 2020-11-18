@@ -1,9 +1,12 @@
 import datetime
 from collections import defaultdict
+from io import BytesIO
 from typing import Iterable, List, Tuple, Union
 
 import graphene
+from django.contrib.staticfiles import finders
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.files import File
 from django.db import transaction
 from django.db.models import Q, QuerySet
 from django.utils.text import slugify
@@ -1367,6 +1370,12 @@ class ProductVariantCreate(ModelMutation):
             instance.save(update_fields=["name"])
         info.context.plugins.product_updated(instance.product)
 
+        if instance.is_digital():
+            try:
+                instance.digital_content
+            except ObjectDoesNotExist:
+                cls.create_digital_content(instance)
+
     @classmethod
     def create_variant_stocks(cls, variant, stocks):
         warehouse_ids = [stock["warehouse"] for stock in stocks]
@@ -1374,6 +1383,19 @@ class ProductVariantCreate(ModelMutation):
             warehouse_ids, "warehouse", only_type=Warehouse
         )
         create_stocks(variant, stocks, warehouses)
+
+    @classmethod
+    @transaction.atomic
+    def create_digital_content(cls, variant):
+        placeholder_path = finders.find('images/placeholder120x120.png')
+
+        with open(placeholder_path, 'rb') as f:
+            stf = BytesIO(f.read())
+
+            digital_content = models.DigitalContent(content_file=File(stf))
+            variant.digital_content = digital_content
+            variant.digital_content.save()
+
 
 
 class ProductVariantUpdate(ProductVariantCreate):

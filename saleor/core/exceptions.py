@@ -9,6 +9,14 @@ class InsufficientStock(Exception):
         self.code = CheckoutErrorCode.INSUFFICIENT_STOCK
 
 
+class MissedDigitalContent(Exception):
+    def __init__(self, item, context=None):
+        super().__init__("Missed digital content for %r" % (item,))
+        self.item = item
+        self.context = context
+        self.code = CheckoutErrorCode.MISSED_DIGITAL_CONTENT
+
+
 class AllocationError(Exception):
     def __init__(self, order_line, quantity):
         super().__init__(

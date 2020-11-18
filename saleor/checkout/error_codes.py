@@ -8,6 +8,7 @@ class CheckoutErrorCode(Enum):
     PRODUCT_NOT_PUBLISHED = "product_not_published"
     PRODUCT_UNAVAILABLE_FOR_PURCHASE = "product_unavailable_for_purchase"
     INSUFFICIENT_STOCK = "insufficient_stock"
+    MISSED_DIGITAL_CONTENT = 'missed_digital_content'
     INVALID = "invalid"
     INVALID_SHIPPING_METHOD = "invalid_shipping_method"
     NOT_FOUND = "not_found"
