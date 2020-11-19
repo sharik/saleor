@@ -1,12 +1,15 @@
 from collections import defaultdict
+from io import BytesIO
 from typing import TYPE_CHECKING, Dict, List, Tuple
 
 import graphene
+from django.contrib.staticfiles import finders
 from django.core.exceptions import ValidationError
+from django.core.files import File
 from django.db import transaction
 from django.db.utils import IntegrityError
 
-from ...product import AttributeInputType
+from ...product import AttributeInputType, models
 from ...product.error_codes import ProductErrorCode
 from ...warehouse.models import Stock
 
@@ -159,3 +162,15 @@ def create_stocks(
     except IntegrityError:
         msg = "Stock for one of warehouses already exists for this product variant."
         raise ValidationError(msg)
+
+
+@transaction.atomic
+def create_digital_content(variant):
+    placeholder_path = finders.find('images/placeholder120x120.png')
+
+    with open(placeholder_path, 'rb') as f:
+        stf = BytesIO(f.read())
+
+        digital_content = models.DigitalContent(content_file=File(stf))
+        variant.digital_content = digital_content
+        variant.digital_content.save()

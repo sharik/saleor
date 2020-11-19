@@ -61,7 +61,7 @@ from ..utils import (
     get_used_attribute_values_for_variant,
     get_used_variants_attribute_values,
     validate_attributes_input_for_product,
-    validate_attributes_input_for_variant,
+    validate_attributes_input_for_variant, create_digital_content,
 )
 from .common import ReorderInput
 
@@ -1001,9 +1001,16 @@ class ProductCreate(ModelMutation):
             if stocks:
                 cls.create_variant_stocks(variant, stocks)
 
+            if variant.is_digital():
+                try:
+                    variant.digital_content
+                except ObjectDoesNotExist:
+                    create_digital_content(instance)
+
         attributes = cleaned_input.get("attributes")
         if attributes:
             AttributeAssignmentMixin.save(instance, attributes)
+
 
     @classmethod
     def create_variant_stocks(cls, variant, stocks):
@@ -1374,7 +1381,7 @@ class ProductVariantCreate(ModelMutation):
             try:
                 instance.digital_content
             except ObjectDoesNotExist:
-                cls.create_digital_content(instance)
+                create_digital_content(instance)
 
     @classmethod
     def create_variant_stocks(cls, variant, stocks):
@@ -1383,19 +1390,6 @@ class ProductVariantCreate(ModelMutation):
             warehouse_ids, "warehouse", only_type=Warehouse
         )
         create_stocks(variant, stocks, warehouses)
-
-    @classmethod
-    @transaction.atomic
-    def create_digital_content(cls, variant):
-        placeholder_path = finders.find('images/placeholder120x120.png')
-
-        with open(placeholder_path, 'rb') as f:
-            stf = BytesIO(f.read())
-
-            digital_content = models.DigitalContent(content_file=File(stf))
-            variant.digital_content = digital_content
-            variant.digital_content.save()
-
 
 
 class ProductVariantUpdate(ProductVariantCreate):
@@ -1430,6 +1424,17 @@ class ProductVariantUpdate(ProductVariantCreate):
                 return
         # if assigned attributes is getting updated run duplicated attribute validation
         super().validate_duplicated_attribute_values(attributes, used_attribute_values)
+
+    @classmethod
+    @transaction.atomic()
+    def save(cls, info, instance, cleaned_input):
+        super().save(info, instance, cleaned_input)
+
+        if instance.is_digital():
+            try:
+                instance.digital_content
+            except ObjectDoesNotExist:
+                create_digital_content(instance)
 
 
 class ProductVariantDelete(ModelDeleteMutation):
