@@ -5,7 +5,6 @@ from django.contrib.auth.backends import UserModel
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.base import ContentFile
 from django.utils.crypto import get_random_string
-from graphql_jwt.shortcuts import get_token
 
 from saleor.account import models
 from saleor.core.jwt import create_access_token
