@@ -8,6 +8,7 @@ from django.utils.crypto import get_random_string
 from graphql_jwt.shortcuts import get_token
 
 from saleor.account import models
+from saleor.core.jwt import create_access_token
 from saleor.core.permissions import OrderPermissions
 from saleor.graphql.account.mutations.base import BaseCustomerCreate, UserCreateInput
 from saleor.graphql.core.mutations import BaseMutation
@@ -37,7 +38,7 @@ class BitsTokenExchange(BaseCustomerCreate):
         """Return a success response."""
         response = super().success_response(instance)
         if not response.errors:
-            response.token = get_token(instance)
+            response.token = create_access_token(instance)
         return response
 
     @classmethod

@@ -353,8 +353,11 @@ def _process_payment(
     order_data: dict,
 ) -> Transaction:
     """Process the payment assigned to checkout."""
+    last_transaction = payment.get_last_transaction(include_failed=False)
     try:
-        if payment.to_confirm:
+        if last_transaction and last_transaction.action_required:
+            txn = gateway.verify_payment(payment=payment, transaction=last_transaction)
+        elif payment.to_confirm:
             txn = gateway.confirm(payment, additional_data=payment_data)
         else:
             txn = gateway.process_payment(

@@ -6,12 +6,29 @@ from requests import RequestException
 from saleor import settings
 from saleor.payment import TransactionKind
 from saleor.payment.interface import GatewayConfig, GatewayResponse, PaymentData
+from saleor.payment.models import Payment
 from saleor.plugins.base_plugin import BasePlugin, ConfigurationTypeField
 
 from ..api import BitsAPI
 
 GATEWAY_NAME = "Bits"
 PLUGIN_ID = "bits.payments"
+
+
+def collect_metadata(payment):
+    metadata = []
+
+    objects_with_metadata = {payment.checkout}
+    for line in payment.checkout.lines.all():
+        objects_with_metadata.add(line.variant)
+        objects_with_metadata.add(line.variant.product)
+        objects_with_metadata.add(line.variant.product.product_type)
+
+    for obj in objects_with_metadata:
+        for k, v in obj.metadata.items():
+            metadata.append({'key': k, 'value': v, 'object_type': obj._meta.model_name})
+
+    return metadata
 
 
 def require_active_plugin(fn):
@@ -127,10 +144,12 @@ class BitsGatewayPlugin(BasePlugin):
     ) -> "GatewayResponse":
         kind = TransactionKind.AUTH
         amount = payment_information.amount
+        payment = Payment.objects.get(pk=payment_information.payment_id)
 
         api = BitsAPI.from_payment_data(payment_information)
         data = api.create_order_payment(amount=float(amount),
-                                        payment_id=payment_information.payment_id)
+                                        payment_id=payment_information.payment_id,
+                                        extra={'metadata': collect_metadata(payment)})
 
         raw_response = {'response': data}
         if data.get('require_action'):
@@ -145,7 +164,8 @@ class BitsGatewayPlugin(BasePlugin):
             currency=payment_information.currency,
             error=None,
             is_success=True,
-            raw_response=raw_response
+            raw_response=raw_response,
+            action_required_data=raw_response.get('action_required_data')
         )
 
     @handle_exception(TransactionKind.CAPTURE)
@@ -226,9 +246,15 @@ class BitsGatewayPlugin(BasePlugin):
             currency=payment_information.currency,
             error=None,
             is_success=True,
-            raw_response=raw_response
+            raw_response=raw_response,
+            action_required_data=raw_response.get('action_required_data'),
+            transaction_already_processed=True
         )
 
     @require_active_plugin
     def get_payment_config(self, previous_value):
         return []
+
+    @require_active_plugin
+    def get_supported_currencies(self, previous_value):
+        return ['USD', "GBP", 'EUR']
