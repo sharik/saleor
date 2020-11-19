@@ -117,7 +117,7 @@ class BitsAPI(object):
 
         return self._do_post(url, data=payload)
 
-    def cancel_order_payment(self, payment_id):
+    def cancel_order_payment(self, payment_id, **kwargs):
         segments = (
             'api',
             'v1',
@@ -126,10 +126,13 @@ class BitsAPI(object):
             'cancel'
         )
 
-        url = build_url(self.API_URL, *segments)
-        return self._do_post(url, {})
+        payload = {}
+        payload.update(kwargs)
 
-    def verify_order_payment(self, payment_id):
+        url = build_url(self.API_URL, *segments)
+        return self._do_post(url, payload)
+
+    def verify_order_payment(self, payment_id, **kwargs):
         segments = (
             'api',
             'v1',
@@ -138,8 +141,11 @@ class BitsAPI(object):
             'verify'
         )
 
+        payload = {}
+        payload.update(kwargs)
+
         url = build_url(self.API_URL, *segments)
-        return self._do_post(url, data={})
+        return self._do_post(url, data=payload)
 
     def get_order_payment(self, payment_id):
         segments = (

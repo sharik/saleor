@@ -1,6 +1,7 @@
 from json import JSONDecodeError
 from typing import TYPE_CHECKING, List
 
+import graphene
 from requests import RequestException
 
 from saleor import settings
@@ -29,6 +30,40 @@ def collect_metadata(payment):
             metadata.append({'key': k, 'value': v, 'object_type': obj._meta.model_name})
 
     return metadata
+
+
+def collect_metadata_for_line(line):
+    metadata = {}
+
+    objects_with_metadata = set()
+    objects_with_metadata.add(line.variant.product.product_type)
+    objects_with_metadata.add(line.variant.product)
+    objects_with_metadata.add(line.variant)
+
+    for obj in objects_with_metadata:
+        for k, v in obj.metadata.items():
+            metadata[k] = v
+
+    return metadata
+
+
+def collect_extra(payment):
+    obj = payment.order or payment.checkout
+
+    extra = {'orderId': graphene.Node.to_global_id("Order", payment.order.pk) if payment.order else None,
+             'orderLines': []}
+
+    for line in obj.lines.all():
+        extra['orderLines'].append({
+            'id': graphene.Node.to_global_id('ProductVariant', line.variant.pk),
+            'name': line.variant.name,
+            'productName': line.variant.product.name,
+            'links': [],
+            'quantity': line.quantity,
+            'metadata': collect_metadata_for_line(line)
+        })
+
+    return extra
 
 
 def require_active_plugin(fn):
@@ -82,11 +117,13 @@ def handle_exception(transaction_kind: "TransactionKind"):
                     transaction_id=payment_information.token,
                     amount=payment_information.amount,
                     currency=payment_information.currency,
-                    error=exception_message if isinstance(exception_message, str) else str(e),
+                    error=exception_message if isinstance(exception_message,
+                                                          str) else str(e),
                     kind=str(kind),
                     raw_response=data,
                     customer_id=payment_information.customer_id,
                 )
+
         return wrapped
 
     return _wrap
@@ -115,7 +152,7 @@ class BitsGatewayPlugin(BasePlugin):
         "Supported currencies": {
             "type": ConfigurationTypeField.STRING,
             "help_text": "Determines currencies supported by gateway."
-            " Please enter currency codes separated by a comma.",
+                         " Please enter currency codes separated by a comma.",
             "label": "Supported currencies",
         },
     }
@@ -149,7 +186,7 @@ class BitsGatewayPlugin(BasePlugin):
         api = BitsAPI.from_payment_data(payment_information)
         data = api.create_order_payment(amount=float(amount),
                                         payment_id=payment_information.payment_id,
-                                        extra={'metadata': collect_metadata(payment)})
+                                        extra=collect_extra(payment))
 
         raw_response = {'response': data}
         if data.get('require_action'):
@@ -173,10 +210,13 @@ class BitsGatewayPlugin(BasePlugin):
     def capture_payment(
             self, payment_information: "PaymentData", previous_value
     ) -> "GatewayResponse":
+        payment = Payment.objects.get(pk=payment_information.payment_id)
+
         kind = TransactionKind.CAPTURE
         api = BitsAPI.from_payment_data(payment_information)
         data = api.capture_order_payment(payment_information.token,
-                                         order_id=payment_information.order_id)
+                                         order_id=payment_information.order_id,
+                                         extra=collect_extra(payment))
 
         return GatewayResponse(
             transaction_id=data.get('id'),
@@ -205,6 +245,7 @@ class BitsGatewayPlugin(BasePlugin):
     def void_payment(
             self, payment_information: "PaymentData", previous_value
     ) -> "GatewayResponse":
+
         kind = TransactionKind.VOID
         api = BitsAPI.from_payment_data(payment_information)
         data = api.cancel_order_payment(payment_information.token)
@@ -229,9 +270,11 @@ class BitsGatewayPlugin(BasePlugin):
     @require_active_plugin
     def verify_payment(self, payment_information: "PaymentData",
                        previous_value) -> "GatewayResponse":
+        payment = Payment.objects.get(pk=payment_information.payment_id)
+
         kind = TransactionKind.AUTH
         api = BitsAPI.from_payment_data(payment_information)
-        data = api.verify_order_payment(payment_information.token)
+        data = api.verify_order_payment(payment_information.token, extra=collect_extra(payment))
 
         raw_response = {'response': data}
         if data.get('require_action'):
