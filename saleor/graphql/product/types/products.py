@@ -54,6 +54,7 @@ from ..dataloaders import (
     ImagesByProductVariantIdLoader,
     ProductAttributesByProductTypeIdLoader,
     ProductByIdLoader,
+    ProductByIdNoChecksLoader,
     ProductTypeByIdLoader,
     ProductVariantByIdLoader,
     ProductVariantsByProductIdLoader,
@@ -366,6 +367,8 @@ class ProductVariant(CountableDjangoObjectType):
 
     @staticmethod
     def resolve_product(root: models.ProductVariant, info):
+        if 'checkout' in info.path or 'order' in info.path:
+            return ProductByIdNoChecksLoader(info.context).load(root.product_id)
         return ProductByIdLoader(info.context).load(root.product_id)
 
     @staticmethod

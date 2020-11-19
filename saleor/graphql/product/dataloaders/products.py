@@ -31,6 +31,14 @@ class ProductByIdLoader(DataLoader):
         return [products.get(product_id) for product_id in keys]
 
 
+class ProductByIdNoChecksLoader(DataLoader):
+    context_key = "product_by_id_no_checks"
+
+    def batch_load(self, keys):
+        products = Product.objects.in_bulk(keys)
+        return [products.get(product_id) for product_id in keys]
+
+
 class ProductTypeByIdLoader(DataLoader):
     context_key = "product_type_by_id"
 
