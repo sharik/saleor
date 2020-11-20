@@ -64,10 +64,10 @@ def country(get_response):
     """Detect the user's country and assign it to `request.country`."""
 
     def _country_middleware(request):
-        client_ip = get_client_ip(request)
-        if client_ip:
-            request.country = get_country_by_ip(client_ip)
-        if not request.country:
+        # client_ip = get_client_ip(request)
+        # if client_ip:
+        #     request.country = get_country_by_ip(client_ip)
+        if not hasattr(request, 'country') or not request.country:
             request.country = Country(settings.DEFAULT_COUNTRY)
         return get_response(request)
 
