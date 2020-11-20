@@ -243,7 +243,7 @@ class BitsGatewayPlugin(BasePlugin):
 
         kind = TransactionKind.REFUND
         api = BitsAPI.from_payment_data(payment_information)
-        data = api.cancel_order_payment(payment_information.token, extra=collect_extra(payment))
+        data = api.refund_order_payment(payment_information.token, extra=collect_extra(payment))
         raw_response = {'response': data}
 
         return GatewayResponse(
