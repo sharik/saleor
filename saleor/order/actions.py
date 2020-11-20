@@ -106,7 +106,7 @@ def order_refunded(
     send_order_refunded_confirmation(order, user, amount, payment.currency)
 
 
-def order_voided(order: "Order", user: "User", payment: "Payment"):
+def order_voided(order: "Order", user: Optional["User"], payment: "Payment"):
     events.payment_voided_event(order=order, user=user, payment=payment)
     get_plugins_manager().order_updated(order)
 

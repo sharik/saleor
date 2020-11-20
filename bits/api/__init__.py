@@ -132,6 +132,21 @@ class BitsAPI(object):
         url = build_url(self.API_URL, *segments)
         return self._do_post(url, payload)
 
+    def refund_order_payment(self, payment_id, **kwargs):
+        segments = (
+            'api',
+            'v1',
+            'orders',
+            payment_id,
+            'refund'
+        )
+
+        payload = {}
+        payload.update(kwargs)
+
+        url = build_url(self.API_URL, *segments)
+        return self._do_post(url, payload)
+
     def verify_order_payment(self, payment_id, **kwargs):
         segments = (
             'api',
@@ -157,9 +172,6 @@ class BitsAPI(object):
 
         url = build_url(self.API_URL, *segments)
         return self._do_get(url)
-
-    def refund_order_payment(self):
-        raise NotImplementedError
 
     def get_user(self):
         segments = (

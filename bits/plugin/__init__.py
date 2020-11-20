@@ -234,21 +234,17 @@ class BitsGatewayPlugin(BasePlugin):
     ) -> "GatewayResponse":
         return self.capture_payment(payment_information, previous_value)
 
+    @handle_exception(TransactionKind.REFUND)
     @require_active_plugin
     def refund_payment(
             self, payment_information: "PaymentData", previous_value
     ) -> "GatewayResponse":
-        raise NotImplementedError
+        payment = Payment.objects.get(pk=payment_information.payment_id)
 
-    @handle_exception(TransactionKind.VOID)
-    @require_active_plugin
-    def void_payment(
-            self, payment_information: "PaymentData", previous_value
-    ) -> "GatewayResponse":
-
-        kind = TransactionKind.VOID
+        kind = TransactionKind.REFUND
         api = BitsAPI.from_payment_data(payment_information)
-        data = api.cancel_order_payment(payment_information.token)
+        data = api.cancel_order_payment(payment_information.token, extra=collect_extra(payment))
+        raw_response = {'response': data}
 
         return GatewayResponse(
             transaction_id=payment_information.token,
@@ -256,6 +252,30 @@ class BitsGatewayPlugin(BasePlugin):
             kind=kind,
             amount=payment_information.amount,
             currency=payment_information.currency,
+            raw_response=raw_response,
+            error=None,
+            is_success=True
+        )
+
+    @handle_exception(TransactionKind.VOID)
+    @require_active_plugin
+    def void_payment(
+            self, payment_information: "PaymentData", previous_value
+    ) -> "GatewayResponse":
+        payment = Payment.objects.get(pk=payment_information.payment_id)
+
+        kind = TransactionKind.VOID
+        api = BitsAPI.from_payment_data(payment_information)
+        data = api.cancel_order_payment(payment_information.token, extra=collect_extra(payment))
+        raw_response = {'response': data}
+
+        return GatewayResponse(
+            transaction_id=payment_information.token,
+            action_required=False,
+            kind=kind,
+            amount=payment_information.amount,
+            currency=payment_information.currency,
+            raw_response=raw_response,
             error=None,
             is_success=True
         )

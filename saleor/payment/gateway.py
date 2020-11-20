@@ -198,9 +198,9 @@ def refund(payment: Payment, amount: Decimal = None) -> Transaction:
 @require_active_payment
 @with_locked_payment
 @payment_postprocess
-def void(payment: Payment) -> Transaction:
+def void(payment: Payment, handle_failed=False) -> Transaction:
     plugin_manager = get_plugins_manager()
-    token = _get_past_transaction_token(payment, TransactionKind.AUTH)
+    token = _get_past_transaction_token(payment, TransactionKind.AUTH, handle_failed=handle_failed)
     payment_data = create_payment_information(payment=payment, payment_token=token)
     response, error = _fetch_gateway_response(
         plugin_manager.void_payment, payment.gateway, payment_data
@@ -301,9 +301,12 @@ def _fetch_gateway_response(fn, *args, **kwargs):
 
 
 def _get_past_transaction_token(
-    payment: Payment, kind: str  # for kind use "TransactionKind"
+    payment: Payment, kind: str, handle_failed: bool = False  # for kind use "TransactionKind"
 ) -> Optional[str]:
     txn = payment.transactions.filter(kind=kind, is_success=True).last()
+    if txn is None and handle_failed:
+        txn = payment.transactions.filter(kind=kind).last()
+
     if txn is None:
         raise PaymentError(f"Cannot find successful {kind} transaction.")
     return txn.token

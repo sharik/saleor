@@ -28,6 +28,7 @@ from ..giftcard.utils import (
     add_gift_card_code_to_checkout,
     remove_gift_card_code_from_checkout,
 )
+from ..payment import gateway, PaymentError
 from ..plugins.manager import get_plugins_manager
 from ..shipping.models import ShippingMethod
 from ..warehouse.availability import check_stock_quantity
@@ -542,4 +543,11 @@ def clean_checkout(
 
 
 def cancel_active_payments(checkout: Checkout):
+    payments = list(checkout.payments.filter(is_active=True).all())
     checkout.payments.filter(is_active=True).update(is_active=False)
+
+    for payment in payments:
+        try:
+            gateway.void(payment, handle_failed=True)
+        except PaymentError as e:
+            pass
