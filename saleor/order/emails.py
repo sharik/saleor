@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING, Optional
 from urllib.parse import urlencode
 
+from django.db import transaction
 from templated_email import send_templated_mail, InlineImage
 
 from ..account.models import StaffNotificationRecipient, User
@@ -128,7 +129,9 @@ def send_fulfillment_confirmation(order_pk, fulfillment_pk):
 
 
 def send_fulfillment_confirmation_to_customer(order, fulfillment, user):
-    send_fulfillment_confirmation.delay(order.pk, fulfillment.pk)
+    transaction.on_commit(
+        lambda: send_fulfillment_confirmation.delay(order.pk, fulfillment.pk)
+    )
 
     events.email_sent_event(
         order=order, user=user, email_type=events.OrderEventsEmails.FULFILLMENT
