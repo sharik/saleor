@@ -4,6 +4,7 @@ from django.conf.urls.static import static
 from django.contrib.staticfiles.views import serve
 from django.views.decorators.csrf import csrf_exempt
 
+from bits import urls as bits_urls
 from .data_feeds.urls import urlpatterns as feed_urls
 from .graphql.api import schema
 from .graphql.views import GraphQLView
@@ -23,6 +24,7 @@ urlpatterns = [
         handle_plugin_webhook,
         name="plugins",
     ),
+    url(r'^digital/', include((bits_urls, 'bits'), namespace="bits")),
 ]
 
 if settings.DEBUG:

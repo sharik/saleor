@@ -1,16 +1,22 @@
 from json import JSONDecodeError
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Any
 
 import graphene
+from django.core.exceptions import ObjectDoesNotExist
+from django.urls import reverse
 from requests import RequestException
 
 from saleor import settings
+from saleor.core.utils import build_absolute_uri
+from saleor.order.models import OrderLine, Order
 from saleor.payment import TransactionKind
 from saleor.payment.interface import GatewayConfig, GatewayResponse, PaymentData
 from saleor.payment.models import Payment
 from saleor.plugins.base_plugin import BasePlugin, ConfigurationTypeField
 
 from ..api import BitsAPI
+# important to import. register in task system
+from ..tasks import verify_payment
 
 GATEWAY_NAME = "Bits"
 PLUGIN_ID = "bits.payments"
@@ -47,6 +53,15 @@ def collect_metadata_for_line(line):
     return metadata
 
 
+def collect_links_for_order_line(order_line: "OrderLine"):
+    try:
+        digital_file_obj = order_line.bits_digital_content
+    except ObjectDoesNotExist:
+        return ()
+    url = reverse("bits:bits-digital-file", kwargs={"token": str(digital_file_obj.token)})
+    return (build_absolute_uri(url), )
+
+
 def collect_extra(payment):
     obj = payment.order or payment.checkout
 
@@ -58,7 +73,7 @@ def collect_extra(payment):
             'id': graphene.Node.to_global_id('ProductVariant', line.variant.pk),
             'name': line.variant.name,
             'productName': line.variant.product.name,
-            'links': [],
+            'links': collect_links_for_order_line(line),
             'quantity': line.quantity,
             'metadata': collect_metadata_for_line(line)
         })
@@ -321,3 +336,13 @@ class BitsGatewayPlugin(BasePlugin):
     @require_active_plugin
     def get_supported_currencies(self, previous_value):
         return ['USD', "GBP", 'EUR']
+
+    @require_active_plugin
+    def order_fulfilled(self, order: "Order", previous_value: Any):
+        payment = order.get_last_payment()
+        if payment:
+            verify_payment.delay(payment.pk)
+
+        return previous_value
+
+
