@@ -130,7 +130,8 @@ def send_fulfillment_confirmation(order_pk, fulfillment_pk):
 
 def send_fulfillment_confirmation_to_customer(order, fulfillment, user):
     transaction.on_commit(
-        lambda: send_fulfillment_confirmation.delay(order.pk, fulfillment.pk)
+        lambda: send_fulfillment_confirmation.apply_async((order.pk, fulfillment.pk),
+                                                          countdown=5)
     )
 
     events.email_sent_event(
