@@ -1,0 +1,1 @@
+*/20 * * * * /usr/local/bin/python /app/manage.py verify_payments -v 3 &> /proc/1/fd/1
