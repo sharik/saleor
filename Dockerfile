@@ -52,6 +52,7 @@ WORKDIR /app
 COPY bits/crontab /app/crontab
 COPY bits/docker-entrypoint.sh /
 
+RUN chmod +x /docker-entrypoint.sh
 
 ARG STATIC_URL
 ENV STATIC_URL ${STATIC_URL:-/static/}
