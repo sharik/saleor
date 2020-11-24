@@ -31,6 +31,7 @@ RUN apt-get update \
   libgdk-pixbuf2.0-0 \
   shared-mime-info \
   mime-support \
+  curl \
   && curl -fsSLO "$SUPERCRONIC_URL" \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
