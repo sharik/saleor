@@ -56,7 +56,8 @@ def collect_metadata_for_line(line):
 def collect_links_for_order_line(order_line: "OrderLine"):
     try:
         digital_file_obj = order_line.bits_digital_content
-    except ObjectDoesNotExist:
+    except (ObjectDoesNotExist, AttributeError):
+        # AttributeError if it is CheckoutLine
         return ()
     url = reverse("bits:bits-digital-file", kwargs={"token": str(digital_file_obj.token)})
     return (build_absolute_uri(url), )
