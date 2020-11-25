@@ -1,1 +1,3 @@
 */20 * * * * /usr/local/bin/python /app/manage.py verify_payments -v 3 &> /proc/1/fd/1
+5 * * * * /usr/local/bin/python /app/manage.py notify_pending_orders -v 3 &> /proc/1/fd/1
+35 * * * * /usr/local/bin/python /app/manage.py notify_fulfilled_orders -v 3 &> /proc/1/fd/1

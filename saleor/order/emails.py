@@ -144,10 +144,6 @@ def send_order_preparing(order_pk, redirect_url, user_pk=None):
         log.warning('Order preparing email disabled')
         return
 
-    order = Order.objects.prefetch_related("lines").get(
-        pk=order_pk
-    )
-
     email_data = collect_data_for_email(order_pk, CONFIRM_ORDER_TEMPLATE, redirect_url)
     email_data['template_name'] = PREPARING_ORDER_DIGITAL_TEMPLATE
     send_templated_mail(**email_data)
@@ -155,7 +151,7 @@ def send_order_preparing(order_pk, redirect_url, user_pk=None):
         order=email_data["context"]["order"],
         user=None,
         user_pk=user_pk,
-        email_type=events.OrderEventsEmails.ORDER_CONFIRMATION,
+        email_type=events.OrderEventsEmails.ORDER_PREPARING,
     )
 
 
