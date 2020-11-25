@@ -1,6 +1,8 @@
+import logging
 from typing import TYPE_CHECKING, Optional
 from urllib.parse import urlencode
 
+from django.conf import settings
 from django.db import transaction
 from templated_email import send_templated_mail, InlineImage
 
@@ -17,15 +19,27 @@ if TYPE_CHECKING:
 
     from ..account.models import User  # noqa: F401
 
+
+log = logging.getLogger('saleor.order.emails')
+
 CONFIRM_ORDER_TEMPLATE = "order/confirm_order"
+CONFIRM_ORDER_DIGITAL_TEMPLATE = "order/confirm_order_digital"
+PREPARING_ORDER_DIGITAL_TEMPLATE = "order/preparing_order_digital"
+
 STAFF_CONFIRM_ORDER_TEMPLATE = "order/staff_confirm_order"
 CONFIRM_FULFILLMENT_TEMPLATE = "order/confirm_fulfillment"
+CONFIRM_FULFILLMENT_DIGITAL_TEMPLATE = "order/confirm_fulfillment_digital"
+
 UPDATE_FULFILLMENT_TEMPLATE = "order/update_fulfillment"
 CONFIRM_PAYMENT_TEMPLATE = "order/payment/confirm_payment"
 ORDER_CANCEl_TEMPLATE = "order/order_cancel"
 ORDER_REFUND_TEMPLATE = "order/order_refund"
 
 ENABLE_FULLFILLMENT_EMAIL = False
+
+
+def order_is_digital(order: "Order") -> bool:
+    return any((line.is_digital for line in order.lines.all()))
 
 
 def collect_staff_order_notification_data(
@@ -61,7 +75,7 @@ def collect_data_for_email(
     email_context["order"] = order
 
     # Order confirmation template requires additional information
-    if template in [CONFIRM_ORDER_TEMPLATE, STAFF_CONFIRM_ORDER_TEMPLATE]:
+    if template in [CONFIRM_ORDER_TEMPLATE, STAFF_CONFIRM_ORDER_TEMPLATE, CONFIRM_ORDER_DIGITAL_TEMPLATE, ORDER_CANCEl_TEMPLATE]:
         email_markup = get_order_confirmation_markup(order)
         email_context["schema_markup"] = email_markup
 
@@ -100,7 +114,42 @@ def collect_data_for_fulfillment_email(order_pk, template, fulfillment_pk):
 @app.task
 def send_order_confirmation(order_pk, redirect_url, user_pk=None):
     """Send order confirmation email."""
+    if not settings.EMAIL_ORDER_CONFIRMATION_ENABLED:
+        log.warning('Order confirmation email disabled')
+        return
+
+    order = Order.objects.prefetch_related("lines").get(
+        pk=order_pk
+    )
+
+    if order_is_digital(order):
+        template = CONFIRM_ORDER_DIGITAL_TEMPLATE
+    else:
+        template = CONFIRM_ORDER_TEMPLATE
+
+    email_data = collect_data_for_email(order_pk, template, redirect_url)
+    send_templated_mail(**email_data)
+    events.email_sent_event(
+        order=email_data["context"]["order"],
+        user=None,
+        user_pk=user_pk,
+        email_type=events.OrderEventsEmails.ORDER_CONFIRMATION,
+    )
+
+
+@app.task
+def send_order_preparing(order_pk, redirect_url, user_pk=None):
+    """Send order preparing email."""
+    if not settings.EMAIL_ORDER_PREPARING_ENABLED:
+        log.warning('Order preparing email disabled')
+        return
+
+    order = Order.objects.prefetch_related("lines").get(
+        pk=order_pk
+    )
+
     email_data = collect_data_for_email(order_pk, CONFIRM_ORDER_TEMPLATE, redirect_url)
+    email_data['template_name'] = PREPARING_ORDER_DIGITAL_TEMPLATE
     send_templated_mail(**email_data)
     events.email_sent_event(
         order=email_data["context"]["order"],
@@ -113,6 +162,10 @@ def send_order_confirmation(order_pk, redirect_url, user_pk=None):
 @app.task
 def send_staff_order_confirmation(order_pk, redirect_url):
     """Send order confirmation email."""
+    if not settings.EMAIL_ORDER_STAFF_CONFIRMATION_ENABLED:
+        log.warning('Order staff confirmation email disabled')
+        return
+
     staff_email_data = collect_staff_order_notification_data(
         order_pk, STAFF_CONFIRM_ORDER_TEMPLATE, redirect_url
     )
@@ -122,8 +175,21 @@ def send_staff_order_confirmation(order_pk, redirect_url):
 
 @app.task
 def send_fulfillment_confirmation(order_pk, fulfillment_pk):
+    if not settings.EMAIL_ORDER_FULFILLMENT_CONFIRMATION_ENABLED:
+        log.warning('Order fulfillment confirmation email disabled')
+        return
+
+    order = Order.objects.prefetch_related("lines").get(
+        pk=order_pk
+    )
+
+    if order_is_digital(order):
+        template = CONFIRM_FULFILLMENT_DIGITAL_TEMPLATE
+    else:
+        template = CONFIRM_FULFILLMENT_TEMPLATE
+
     email_data = collect_data_for_fulfillment_email(
-        order_pk, CONFIRM_FULFILLMENT_TEMPLATE, fulfillment_pk
+        order_pk, template, fulfillment_pk
     )
     send_templated_mail(**email_data)
 
@@ -148,6 +214,10 @@ def send_fulfillment_confirmation_to_customer(order, fulfillment, user):
 
 @app.task
 def send_fulfillment_update(order_pk, fulfillment_pk):
+    if not settings.EMAIL_ORDER_FULFILLMENT_UPDATE_ENABLED:
+        log.warning('Order fulfillment update email disabled')
+        return
+
     email_data = collect_data_for_fulfillment_email(
         order_pk, UPDATE_FULFILLMENT_TEMPLATE, fulfillment_pk
     )
@@ -157,6 +227,10 @@ def send_fulfillment_update(order_pk, fulfillment_pk):
 @app.task
 def send_payment_confirmation(order_pk):
     """Send the payment confirmation email."""
+    if not settings.EMAIL_ORDER_PAYMENT_CONFIRMATION_ENABLED:
+        log.warning('Order payment confirmation email disabled')
+        return
+
     email_data = collect_data_for_email(order_pk, CONFIRM_PAYMENT_TEMPLATE)
     send_templated_mail(**email_data)
 
@@ -171,6 +245,10 @@ def send_order_canceled_confirmation(order: "Order", user: Optional["User"]):
 @app.task
 def send_order_canceled(order_pk: int):
     """Send order cancel email."""
+    if not settings.EMAIL_ORDER_CANCELED_ENABLED:
+        log.warning('Order canceled email disabled')
+        return
+
     email_data = collect_data_for_email(order_pk, ORDER_CANCEl_TEMPLATE)
     send_templated_mail(**email_data)
 
@@ -187,6 +265,10 @@ def send_order_refunded_confirmation(
 @app.task
 def send_order_refunded(order_pk: int, amount: "Decimal", currency: str):
     """Send order refund email."""
+    if not settings.EMAIL_ORDER_PAYMENT_REFUNDED_ENABLED:
+        log.warning('Order payment refunded email disabled')
+        return
+
     email_data = collect_data_for_email(order_pk, ORDER_REFUND_TEMPLATE)
     context = email_data["context"]
     context.update({"amount": amount, "currency": currency})

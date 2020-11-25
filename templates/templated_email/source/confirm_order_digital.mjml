@@ -1,0 +1,55 @@
+<mjml>
+  <mj-head>
+    <mj-include path="./shared/styles.mjml" />
+  </mj-head>
+  <mj-body>
+    <mj-raw>
+      {% load i18n %}
+      {% load i18n_address_tags %}
+    </mj-raw>
+    <mj-include path="./shared/header.mjml" />
+    <mj-section>
+      <mj-column>
+        <mj-text>
+            {% blocktrans trimmed context "Order confirmation e-mail text" %}
+                Hello,
+            {% endblocktrans %}
+        </mj-text>
+        <mj-text>
+            {% blocktrans trimmed context "Order confirmation e-mail text" %}
+                Thanks for your order. We’ll let you know when your order is ready to be sent. You should receive the gift card in 48 hours.
+            {% endblocktrans %}
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-include path="./partials/_order_lines.mjml" />
+    <mj-section css-class="no-display">
+      <mj-column>
+        <mj-text>
+          {% if schema_markup %}
+            <script type="application/ld+json">{{ schema_markup|safe }}</script>
+          {% endif %}
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section>
+        <mj-column>
+            <mj-text>
+                {% blocktrans trimmed context "Order notes e-mail text" %}
+                    Please note: You can cancel this order at any point in the next 48 hours before the gift card is sent. Once we have sent the gift card to you, we cannot refund the purchase under any circumstances.
+                {% endblocktrans %}
+            </mj-text>
+            <mj-text>
+                {% blocktrans trimmed context "Order questions e-mail text" %}
+                    If you have any questions regarding your order, you can contact us at store@getbits.app.
+                {% endblocktrans %}
+            </mj-text>
+            <mj-text>
+                {% blocktrans trimmed context "Order thanks e-mail text" %}
+                    Thank you for shopping at the Bits Store!
+                {% endblocktrans %}
+            </mj-text>
+        </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

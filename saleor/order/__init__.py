@@ -105,6 +105,8 @@ class OrderEventsEmails:
     SHIPPING = "shipping_confirmation"
     TRACKING_UPDATED = "tracking_updated"
     ORDER_CONFIRMATION = "order_confirmation"
+    ORDER_PREPARING = "order_preparing"
+
     ORDER_CANCEL = "order_cancel"
     ORDER_REFUND = "order_refund"
     FULFILLMENT = "fulfillment_confirmation"
@@ -115,6 +117,7 @@ class OrderEventsEmails:
         (SHIPPING, "The shipping confirmation email was sent"),
         (TRACKING_UPDATED, "The fulfillment tracking code email was sent"),
         (ORDER_CONFIRMATION, "The order placement confirmation email was sent"),
+        (ORDER_PREPARING, "The order preparing email was sent"),
         (ORDER_CANCEL, "The order cancel confirmation email was sent"),
         (ORDER_REFUND, "The order refund confirmation email was sent"),
         (FULFILLMENT, "The fulfillment confirmation email was sent"),

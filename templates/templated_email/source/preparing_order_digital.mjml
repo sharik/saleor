@@ -1,0 +1,50 @@
+<mjml>
+  <mj-head>
+    <mj-include path="./shared/styles.mjml" />
+  </mj-head>
+  <mj-body>
+    <mj-raw>
+      {% load i18n %}
+      {% load i18n_address_tags %}
+    </mj-raw>
+    <mj-include path="./shared/header.mjml" />
+    <mj-section>
+      <mj-column>
+        <mj-text>
+            {% blocktrans trimmed context "Order preparing e-mail text" %}
+                Hello,
+            {% endblocktrans %}
+        </mj-text>
+        <mj-text>
+            {% blocktrans trimmed context "Order preparing e-mail text" %}
+                We have now started getting your order ready!
+            {% endblocktrans %}
+        </mj-text>
+        <mj-text>
+            {% blocktrans trimmed context "Order preparing 24 hours e-mail text" %}
+                You have just under 24 hours until your E-Gift Card is sent to you, at which point you will no longer be able to cancel your order or receive a refund.
+            {% endblocktrans %}
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-include path="./partials/_order_lines.mjml" />
+    <mj-section css-class="no-display">
+      <mj-column>
+        <mj-text>
+          {% if schema_markup %}
+            <script type="application/ld+json">{{ schema_markup|safe }}</script>
+          {% endif %}
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section>
+        <mj-column>
+            <mj-text>
+                {% blocktrans trimmed context "Order preparing e-mail text" %}
+                        Please email us at store@getbits.app for any queries regarding your order.
+                {% endblocktrans %}
+            </mj-text>
+        </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

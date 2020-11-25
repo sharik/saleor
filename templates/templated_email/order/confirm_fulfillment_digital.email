@@ -1,0 +1,17 @@
+{% load i18n %}
+
+{% block subject %}
+  {% blocktrans trimmed with order=fulfillment.order context "Confirmation email subject" %}
+    You’ve been sent an E-Gift Card from Bits!
+  {% endblocktrans %}
+{% endblock %}
+
+{% block plain %}
+{% blocktrans context "Confirmation email text" %}
+Thank you for your order!
+{% endblocktrans %}
+{% endblock %}
+
+{% block html %}
+{% include 'templated_email/compiled/confirm_fulfillment_digital.html' %}
+{% endblock %}

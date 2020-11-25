@@ -9,16 +9,36 @@
     <mj-include path="./shared/header.mjml" />
     <mj-section>
       <mj-column>
-        <mj-text font-size="16px">
-          {% trans "Hi!" context "Standard e-mail greeting" %}
+        <mj-text>
+          {% trans "Hello," context "Standard e-mail greeting" %}
         </mj-text>
         <mj-text>
           {% blocktrans trimmed context "Order cancel e-mail text" %}
-            Your order has been canceled.
+                We’re writing to let you know that your order has been successfully cancelled.
           {% endblocktrans %}
         </mj-text>
       </mj-column>
     </mj-section>
-    <mj-include path="./shared/footer.mjml" />
+    <mj-include path="./partials/_order_lines.mjml" />
+
+    <mj-section css-class="no-display">
+      <mj-column>
+        <mj-text>
+          {% if schema_markup %}
+            <script type="application/ld+json">{{ schema_markup|safe }}</script>
+          {% endif %}
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section>
+        <mj-column>
+        <mj-text>
+            If you have any questions regarding the details of this order, you can contact us at store@getbits.app.
+        </mj-text>
+        <mj-text>
+            Thank you for shopping at the Bits Store.
+        </mj-text>
+      </mj-column>
+    </mj-section>
   </mj-body>
 </mjml>

@@ -3,17 +3,18 @@
 {% load voucher %}
 
 {% block subject %}
-  {% blocktrans trimmed context "Order cancel e-mail subject" %}
-    Your Bits Store Order has been cancelled.
+  {% blocktrans trimmed context "Order confirmation e-mail subject" %}
+    We’re preparing your order!
   {% endblocktrans %}
 {% endblock %}
 
 {% block plain %}
-{% trans "Hello," context "Standard e-mail greeting" %}
-{% blocktrans context "Order cancel e-mail text" %}
-We’re writing to let you know that your order has been successfully cancelled.
-{% endblocktrans %}
+{% blocktrans context "Order confirmation e-mail text" %}
+Hello again,
+We have now started getting your order ready!
 
+You have just under 24 hours until your E-Gift Card is sent to you, at which point you will no longer be able to cancel your order or receive a refund.
+{% endblocktrans %}
 {% for line in order %}
 {{ line.quantity }} x {{ line }}, {% price line.get_total display_gross=order.display_gross_prices html=False %}
 {% endfor %}
@@ -22,10 +23,9 @@ We’re writing to let you know that your order has been successfully cancelled.
 {% trans "Shipping" context "Order preparing e-mail table header" %}:           {% price order.shipping_price display_gross=order.display_gross_prices html=False %}
 {% trans "Total" context "Order preparing e-mail table header" %}:              {% price order.total.gross html=False %}
 
-If you have any questions regarding the details of this order, you can contact us at store@getbits.app.
-Thank you for shopping at the Bits Store.
+Please email us at store@getbits.app for any queries regarding your order.
 {% endblock %}
 
 {% block html %}
-{% include 'templated_email/compiled/order_cancel.html' %}
+{% include 'templated_email/compiled/preparing_order_digital.html' %}
 {% endblock %}
