@@ -13,7 +13,6 @@
 Hello again,
 We have now started getting your order ready!
 
-You have just under 24 hours until your E-Gift Card is sent to you, at which point you will no longer be able to cancel your order or receive a refund.
 {% endblocktrans %}
 {% for line in order %}
 {{ line.quantity }} x {{ line }}, {% price line.get_total display_gross=order.display_gross_prices html=False %}
@@ -22,7 +21,8 @@ You have just under 24 hours until your E-Gift Card is sent to you, at which poi
 {% trans "Subtotal" context "Order preparing e-mail table header" %}:           {% price order.get_subtotal display_gross=order.display_gross_prices html=False %}
 {% trans "Total" context "Order preparing e-mail table header" %}:              {% price order.total.gross html=False %}
 
-Please email us at store@getbits.app for any queries regarding your order.
+Please let us know if you have changed your mind about your order as soon as possible. Once we have sent your E-Gift Card to you,we will no longer be able to cancel your order or give you a refund.
+Please email us at store@getbits.app for any queries regarding your order. The terms and conditions of your purchase are here ( https://www.getbits.app/bits-store-terms-1 ).
 {% endblock %}
 
 {% block html %}
