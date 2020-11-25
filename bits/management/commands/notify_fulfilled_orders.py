@@ -2,6 +2,7 @@ import logging
 import datetime
 
 from django.core.management.base import BaseCommand
+from django.utils.timezone import now
 
 from saleor.order import OrderStatus, events
 from saleor.order.emails import send_fulfillment_confirmation
@@ -15,7 +16,7 @@ class Command(BaseCommand):
            "Check hourly. Send fulfilled notification after 48 hour order creation"
 
     def handle(self, *args, **options):
-        from_ = datetime.datetime.utcnow() - datetime.timedelta(days=2)
+        from_ = now() - datetime.timedelta(days=2)
         to_ = from_ + datetime.timedelta(hours=1)
 
         orders = Order.objects.filter(

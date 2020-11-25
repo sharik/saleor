@@ -22,7 +22,7 @@
         </mj-text>
       </mj-column>
     </mj-section>
-    <mj-include path="./partials/_order_lines.mjml" />
+    <mj-include path="./partials/_order_lines_no_shipping.mjml" />
     <mj-section css-class="no-display">
       <mj-column>
         <mj-text>

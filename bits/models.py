@@ -2,9 +2,9 @@ from typing import Optional
 from uuid import uuid4
 
 from django.conf import settings
-from django.contrib.postgres.fields import JSONField
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
+from django.db.models import JSONField
 
 from saleor.core.models import ModelWithMetadata
 from saleor.product.models import ProductVariant

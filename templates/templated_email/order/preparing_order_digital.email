@@ -20,7 +20,6 @@ You have just under 24 hours until your E-Gift Card is sent to you, at which poi
 {% endfor %}
 {% trans "Order summary" context "Order confirmation e-mail table header" %}:
 {% trans "Subtotal" context "Order preparing e-mail table header" %}:           {% price order.get_subtotal display_gross=order.display_gross_prices html=False %}
-{% trans "Shipping" context "Order preparing e-mail table header" %}:           {% price order.shipping_price display_gross=order.display_gross_prices html=False %}
 {% trans "Total" context "Order preparing e-mail table header" %}:              {% price order.total.gross html=False %}
 
 Please email us at store@getbits.app for any queries regarding your order.

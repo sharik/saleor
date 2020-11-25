@@ -196,14 +196,6 @@
         </tr>
         <tr>
           <td colspan="3" style="padding: 5px; text-align: right;" align="right">
-            {% trans "Shipping" context "E-mail order lines summary table" %}
-          </td>
-          <td style="padding: 5px; text-align: right;" align="right">
-            {% price order.shipping_price display_gross=order.display_gross_prices html=False %}
-          </td>
-        </tr>
-        <tr>
-          <td colspan="3" style="padding: 5px; text-align: right;" align="right">
             {% if order.display_gross_prices %}
               {% trans "Taxes (included)" context "E-mail order lines summary table" %}
             {% else %}
