@@ -23,7 +23,7 @@ class Command(BaseCommand):
         """
 
         payments = Payment.objects.filter(is_active=True,
-                                          order__is_null=False,
+                                          order__isnull=False,
                                           created__lt=datetime.datetime.utcnow() - datetime.timedelta(
                                               days=6, hours=20),
                                           status_in=[ChargeStatus.NOT_CHARGED, ])
