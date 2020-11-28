@@ -600,7 +600,7 @@
                                   style="color:#555555"><strong><img height="33"
                                                                      src="{% order_line_thumbnail line %}"
                                                                      style="border: 0px;width: 60px;height: 33px;margin: 0px;outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;"
-                                                                     width="60">&nbsp; display_translated_product_name line %} {% price line.unit_price display_gross=order.display_gross_prices html=False %}&nbsp;</strong><br>
+                                                                     width="60">&nbsp; {% display_translated_product_name line %} {% price line.unit_price display_gross=order.display_gross_prices html=False %}&nbsp;</strong><br>
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;qty: {{ line.quantity }}</span></p>
 
                           <hr>
