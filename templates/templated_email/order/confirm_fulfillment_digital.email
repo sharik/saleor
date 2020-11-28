@@ -30,5 +30,5 @@ If you have any queries regarding your order, you can get in touch at store@getb
 {% endblock %}
 
 {% block html %}
-{% include 'templated_email/compiled/confirm_fulfillment_digital.html' %}
+{% include 'templated_email/manual/confirm_fulfillment_digital.html' %}
 {% endblock %}

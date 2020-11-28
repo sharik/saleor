@@ -26,5 +26,5 @@ Please email us at store@getbits.app for any queries regarding your order. The t
 {% endblock %}
 
 {% block html %}
-{% include 'templated_email/compiled/preparing_order_digital.html' %}
+{% include 'templated_email/manual/preparing_order_digital.html' %}
 {% endblock %}

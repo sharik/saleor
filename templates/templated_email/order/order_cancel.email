@@ -26,5 +26,5 @@ Thank you for shopping at the Bits Store.
 {% endblock %}
 
 {% block html %}
-{% include 'templated_email/compiled/order_cancel.html' %}
+{% include 'templated_email/manual/order_cancel.html' %}
 {% endblock %}
