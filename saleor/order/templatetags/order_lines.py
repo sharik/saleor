@@ -1,4 +1,6 @@
 from django import template
+from django.conf import settings
+from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 
 from saleor.product.templatetags.product_images import get_product_image_thumbnail
@@ -6,6 +8,13 @@ from saleor.product.templatetags.product_images import get_product_image_thumbna
 from ..models import OrderLine
 
 register = template.Library()
+
+
+def make_url_absolute(path):
+    domain = Site.objects.get_current().domain
+    scheme = 'https' if settings.SESSION_COOKIE_SECURE else 'http'
+    return '{scheme}://{domain}{path}'.format(domain=domain, path=path,
+                                              scheme=scheme)
 
 
 @register.simple_tag()
@@ -22,10 +31,13 @@ def display_translated_product_name(order_line: OrderLine):
 
 
 @register.simple_tag()
-def order_line_thumbnail(order_line: OrderLine, size=255):
+def order_line_thumbnail(order_line: OrderLine, size=255, absolute=True):
     try:
         product_image = order_line.variant.get_first_image()
     except ObjectDoesNotExist:
         product_image = None
 
+    if absolute:
+        return make_url_absolute(get_product_image_thumbnail(product_image, size, method='thumbnail'))
     return get_product_image_thumbnail(product_image, size, method='thumbnail')
+
