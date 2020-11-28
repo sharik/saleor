@@ -122,12 +122,10 @@ def send_order_confirmation(order_pk, redirect_url, user_pk=None):
         pk=order_pk
     )
 
-    if order_is_digital(order):
-        template = CONFIRM_ORDER_DIGITAL_TEMPLATE
-    else:
-        template = CONFIRM_ORDER_TEMPLATE
+    template = CONFIRM_ORDER_TEMPLATE
 
     email_data = collect_data_for_email(order_pk, template, redirect_url)
+    email_data['is_digital'] = order_is_digital(order)
     send_templated_mail(**email_data)
     events.email_sent_event(
         order=email_data["context"]["order"],
@@ -179,14 +177,12 @@ def send_fulfillment_confirmation(order_pk, fulfillment_pk):
         pk=order_pk
     )
 
-    if order_is_digital(order):
-        template = CONFIRM_FULFILLMENT_DIGITAL_TEMPLATE
-    else:
-        template = CONFIRM_FULFILLMENT_TEMPLATE
+    template = CONFIRM_FULFILLMENT_TEMPLATE
 
     email_data = collect_data_for_fulfillment_email(
         order_pk, template, fulfillment_pk
     )
+    email_data['is_digital'] = order_is_digital(order)
     send_templated_mail(**email_data)
 
 

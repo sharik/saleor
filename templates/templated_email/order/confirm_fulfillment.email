@@ -1,33 +1,34 @@
 {% load i18n %}
+{% load price from taxed_prices %}
+{% load voucher %}
 
 {% block subject %}
   {% blocktrans trimmed with order=fulfillment.order context "Confirmation email subject" %}
-    Your order {{ order }} has been confirmed
+    You’ve been sent an E-Gift Card from Bits!
   {% endblocktrans %}
 {% endblock %}
 
 {% block plain %}
-{% include 'templated_email/shared/_header.email' %}
 {% blocktrans context "Confirmation email text" %}
-Thank you for your order. Below is the list of products.
+Hi there,
+Thanks for your order! Your E-Gift Card is attached to this email.
 {% endblocktrans %}
-{% if fulfillment.tracking_number %}
-{% blocktrans trimmed with tracking_number=fulfillment.tracking_number context "Fulfillment confirmation email text" %}
-You can track your shipment with {{ tracking_number }} code.
-{% endblocktrans %}
-{% endif %}
 
-{% for line in physical_lines %}
-{{ line.quantity }} x {{ line.order_line }}
+{% for line in order %}
+{{ line.quantity }} x {{ line }}, {% price line.get_total display_gross=order.display_gross_prices html=False %}
 {% endfor %}
+{% trans "Order summary" context "Order confirmation e-mail table header" %}:
+{% trans "Subtotal" context "Order confirmation e-mail table header" %}:           {% price order.get_subtotal display_gross=order.display_gross_prices html=False %}
+{% if order.display_gross_prices %}{% trans "Taxes (included)" context "Order confirmation e-mail table header" %}{% else %}{% trans "Taxes" context "Order confirmation e-mail table header" %}{% endif %}:              {% price order.total.tax html=False %}
+{% if order.discount_amount %}{% trans "Discount:" context "Order confirmation e-mail table header" %}           {% discount_as_negative order.discount %}{% endif %}
+{% trans "Total" context "Order confirmation e-mail table header" %}:              {% price order.total.gross html=False %}
 
-{% for line in digital_lines %}
-{{ line.quantity }} x {{ line.order_line }}
-{% endfor %}
+More details on how this can be spent can be found here ( https://www.getbits.app/bits-store-how-to-use ). Please see our Terms and Conditions ( https://www.getbits.app/bits-store-terms-1 ) for further information on the use of this product.
 
-{% include 'templated_email/shared/_footer.email' %}
+If you have any queries regarding your order, you can get in touch at store@getbits.app.
+
 {% endblock %}
 
 {% block html %}
-{% include 'templated_email/compiled/confirm_fulfillment.html' %}
+{% include 'templated_email/manual/confirm_fulfillment.html' %}
 {% endblock %}
