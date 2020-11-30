@@ -190,14 +190,14 @@
     }
 
     #templatePreheader {
-      background-color: #ffffff;
+      background-color: #transparent;
       background-image: none;
       background-repeat: no-repeat;
       background-position: center;
       background-size: cover;
       border-top: 0;
       border-bottom: 0;
-      padding-top: 9px;
+      padding-top: 0px;
       padding-bottom: 9px;
     }
 
@@ -216,14 +216,14 @@
     }
 
     #templateHeader {
-      background-color: #FFFFFF;
+      background-color: #ffffff;
       background-image: none;
       background-repeat: no-repeat;
       background-position: center;
       background-size: cover;
       border-top: 0;
       border-bottom: 0;
-      padding-top: 9px;
+      padding-top: 0px;
       padding-bottom: 0;
     }
 
@@ -268,7 +268,7 @@
     }
 
     #templateFooter {
-      background-color: #transparent;
+      background-color: #ffffff;
       background-image: none;
       background-repeat: no-repeat;
       background-position: center;
@@ -490,8 +490,7 @@
         line-height: 150% !important;
       }
 
-    }</style><!--[if !mso]><!-->
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700,700i" rel="stylesheet"><!--<![endif]-->
+    }</style>
 </head>
 <body style="height: 100%;margin: 0;padding: 0;width: 100%;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;background-color: #ffffff;">
 <center>
@@ -510,11 +509,7 @@
                style="border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;border: 0;max-width: 600px !important;">
           <tr>
             <td valign="top" id="templatePreheader"
-                style="background:#ffffff none no-repeat center/cover;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;background-color: #ffffff;background-image: none;background-repeat: no-repeat;background-position: center;background-size: cover;border-top: 0;border-bottom: 0;padding-top: 9px;padding-bottom: 9px;"></td>
-          </tr>
-          <tr>
-            <td valign="top" id="templateHeader"
-                style="background:#FFFFFF none no-repeat center/cover;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;background-color: #FFFFFF;background-image: none;background-repeat: no-repeat;background-position: center;background-size: cover;border-top: 0;border-bottom: 0;padding-top: 9px;padding-bottom: 0;">
+                style="background:#transparent none no-repeat center/cover;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;background-color: #transparent;background-image: none;background-repeat: no-repeat;background-position: center;background-size: cover;border-top: 0;border-bottom: 0;padding-top: 0px;padding-bottom: 9px;">
               <table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnTextBlock"
                      style="min-width: 100%;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
                 <tbody class="mcnTextBlockOuter">
@@ -536,31 +531,26 @@
                       <tr>
 
                         <td valign="top" class="mcnTextContent"
-                            style="padding-top: 0;padding-right: 18px;padding-bottom: 9px;padding-left: 18px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;word-break: break-word;color: #202020;font-family: Helvetica;font-size: 16px;line-height: 150%;text-align: left;">
+                            style="padding: 0px 18px 9px;line-height: 200%;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;word-break: break-word;color: #656565;font-family: Helvetica;font-size: 12px;text-align: left;">
 
-                          <p dir="ltr"
-                             style="margin: 10px 0;padding: 0;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;color: #202020;font-family: Helvetica;font-size: 16px;line-height: 150%;text-align: left;">
-                            <span style="color:#555555"><strong><span
-                                    style="font-family:open sans,helvetica neue,helvetica,arial,sans-serif"><span
-                                    style="font-size:32px">Your order is cancelled</span></span></strong></span></p>
-
-                          <p dir="ltr"
-                             style="margin: 10px 0;padding: 0;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;color: #202020;font-family: Helvetica;font-size: 16px;line-height: 150%;text-align: left;">
+                          <h1 class="null" dir="ltr"
+                              style="display: block;margin: 0;padding: 0;color: #202020;font-family: Helvetica;font-size: 26px;font-style: normal;font-weight: bold;line-height: 125%;letter-spacing: normal;text-align: left;">
+                            <span style="font-size:32px"><strong>Your order is cancelled</strong></span><br>
                             <br>
-                            <br>
-                            <strong>Order Details: &nbsp;</strong></p>
+                            <span style="font-size:16px"><strong>Order Details: &nbsp;</strong></span></h1>
 
                           <hr>
                           {% for line in order %}
 
                           <p dir="ltr"
-                             style="margin: 10px 0;padding: 0;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;color: #202020;font-family: Helvetica;font-size: 16px;line-height: 150%;text-align: left;">
-                            <strong><img height="33"
-                                         src="{% order_line_thumbnail line %}"
-                                         width="60"
-                                         style="border: 0;height: auto !important;outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;">&nbsp;
-                              {% display_translated_product_name line %} {% price line.unit_price display_gross=order.display_gross_prices html=False %}&nbsp;</strong><br>
-                            &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;qty: {{ line.quantity }}</p>
+                             style="line-height: 200%;margin: 10px 0;padding: 0;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;color: #656565;font-family: Helvetica;font-size: 12px;text-align: left;"><span
+                                  style="font-size:16px"><strong><img height="33"
+                                                                      src="{% order_line_thumbnail line %}"
+                                                                      width="60"
+                                                                      style="border: 0;height: auto !important;outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;">&nbsp; {% display_translated_product_name line %} {% price line.unit_price display_gross=order.display_gross_prices html=False %}&nbsp;</strong><br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;qty: {{ line.quantity }}</span><br>
+                            <br>
+                            &nbsp;</p>
 
                           {% endfor %}
                           <table border="0" cellpadding="0" cellspacing="0" width="250"
@@ -568,52 +558,40 @@
                             <tbody>
                             <tr>
                               <td style="mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
-                                Total
-                              </td>
+                                <span style="font-size:16px">Total</span></td>
                               <td align="right" width="100"
                                   style="mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
-                                {% price order.get_subtotal display_gross=order.display_gross_prices html=False %}
-                              </td>
+                                <span style="font-size:16px">{% price order.get_subtotal display_gross=order.display_gross_prices html=False %}</span></td>
                             </tr>
                             <tr>
                               <td style="mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
-                                Taxes (included)
-                              </td>
+                                <span style="font-size:16px">Taxes (included)</span></td>
                               <td align="right" width="100"
                                   style="mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
-                                  {% price order.total.tax html=False %}
-                              </td>
+                                <span style="font-size:16px">{% price order.total.tax html=False %}</span></td>
                             </tr>
                             <tr>
                               <td style="mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
-                                <strong>Refund</strong></td>
+                                <span style="font-size:16px"><strong>Refund</strong></span></td>
                               <td align="right" width="100"
                                   style="mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
-                                {% price order.total display_gross=order.display_gross_prices html=False %}</td>
-                              </td>
+                                <span style="font-size:16px">{% price order.total display_gross=order.display_gross_prices html=False %}</span></td>
                             </tr>
                             </tbody>
                           </table>
 
                           <p dir="ltr"
-                             style="margin: 10px 0;padding: 0;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;color: #202020;font-family: Helvetica;font-size: 16px;line-height: 150%;text-align: left;">
+                             style="line-height: 200%;margin: 10px 0;padding: 0;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;color: #656565;font-family: Helvetica;font-size: 12px;text-align: left;">
                             &nbsp;</p>
 
                           <p dir="ltr"
-                             style="margin: 10px 0;padding: 0;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;color: #202020;font-family: Helvetica;font-size: 16px;line-height: 150%;text-align: left;">
-                            <span style="color:#555555"><span style="font-size:16px"><span
-                                    style="font-family:open sans,helvetica neue,helvetica,arial,sans-serif">If you have any questions regarding the details of this order, you can contact us at store@getbits.app.</span></span></span>
+                             style="line-height: 200%;margin: 10px 0;padding: 0;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;color: #656565;font-family: Helvetica;font-size: 12px;text-align: left;">
+                            <span style="font-size:16px">If you have any questions regarding the details of this order, you can contact us at store@getbits.app.</span>
                           </p>
 
                           <p dir="ltr"
-                             style="margin: 10px 0;padding: 0;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;color: #202020;font-family: Helvetica;font-size: 16px;line-height: 150%;text-align: left;">
-                            <span style="color:#555555"><span style="font-size:16px"><span
-                                    style="font-family:open sans,helvetica neue,helvetica,arial,sans-serif">Thank you for shopping at the Bits Store.</span></span></span>
-                          </p>
-
-                          <p dir="ltr"
-                             style="margin: 10px 0;padding: 0;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;color: #202020;font-family: Helvetica;font-size: 16px;line-height: 150%;text-align: left;">
-                            &nbsp;</p>
+                             style="line-height: 200%;margin: 10px 0;padding: 0;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;color: #656565;font-family: Helvetica;font-size: 12px;text-align: left;">
+                            <span style="font-size:16px">Thank you for shopping at the Bits Store.</span></p>
 
                         </td>
                       </tr>
@@ -634,12 +612,41 @@
             </td>
           </tr>
           <tr>
+            <td valign="top" id="templateHeader"
+                style="background:#ffffff none no-repeat center/cover;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;background-color: #ffffff;background-image: none;background-repeat: no-repeat;background-position: center;background-size: cover;border-top: 0;border-bottom: 0;padding-top: 0px;padding-bottom: 0;"></td>
+          </tr>
+          <tr>
             <td valign="top" id="templateBody"
                 style="background:#FFFFFF none no-repeat center/cover;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;background-color: #FFFFFF;background-image: none;background-repeat: no-repeat;background-position: center;background-size: cover;border-top: 0;border-bottom: 2px solid #EAEAEA;padding-top: 0;padding-bottom: 9px;"></td>
           </tr>
           <tr>
             <td valign="top" id="templateFooter"
-                style="background:#transparent none no-repeat center/cover;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;background-color: #transparent;background-image: none;background-repeat: no-repeat;background-position: center;background-size: cover;border-top: 0;border-bottom: 0;padding-top: 9px;padding-bottom: 9px;"></td>
+                style="background:#ffffff none no-repeat center/cover;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;background-color: #ffffff;background-image: none;background-repeat: no-repeat;background-position: center;background-size: cover;border-top: 0;border-bottom: 0;padding-top: 9px;padding-bottom: 9px;">
+              <table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnDividerBlock"
+                     style="min-width: 100%;background-color: #FFFFFF;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;table-layout: fixed !important;">
+                <tbody class="mcnDividerBlockOuter">
+                <tr>
+                  <td class="mcnDividerBlockInner"
+                      style="min-width: 100%;padding: 10px 18px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
+                    <table class="mcnDividerContent" border="0" cellpadding="0" cellspacing="0" width="100%"
+                           style="min-width: 100%;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
+                      <tbody>
+                      <tr>
+                        <td style="mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
+                          <span></span>
+                        </td>
+                      </tr>
+                      </tbody>
+                    </table>
+                    <!--
+                                    <td class="mcnDividerBlockInner" style="padding: 18px;">
+                                    <hr class="mcnDividerContent" style="border-bottom-color:none; border-left-color:none; border-right-color:none; border-bottom-width:0; border-left-width:0; border-right-width:0; margin-top:0; margin-right:0; margin-bottom:0; margin-left:0;" />
+                    -->
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </td>
           </tr>
         </table>
         <!--[if (gte mso 9)|(IE)]>
