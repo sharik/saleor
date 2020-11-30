@@ -562,14 +562,13 @@
                               {% display_translated_product_name line %} {% price line.unit_price display_gross=order.display_gross_prices html=False %}&nbsp;</strong><br>
                             &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;qty: {{ line.quantity }}</p>
 
-                          <hr>
                           {% endfor %}
                           <table border="0" cellpadding="0" cellspacing="0" width="250"
                                  style="border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
                             <tbody>
                             <tr>
                               <td style="mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
-                                Subtotal
+                                Total
                               </td>
                               <td align="right" width="100"
                                   style="mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
@@ -587,7 +586,7 @@
                             </tr>
                             <tr>
                               <td style="mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
-                                <strong>Total&nbsp;</strong></td>
+                                <strong>Refund</strong></td>
                               <td align="right" width="100"
                                   style="mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
                                 {% price order.total display_gross=order.display_gross_prices html=False %}</td>
@@ -655,4 +654,3 @@
 </center>
 </body>
 </html>
-
