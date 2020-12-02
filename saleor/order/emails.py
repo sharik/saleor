@@ -92,13 +92,19 @@ def prepare_order_details_url(order: Order, redirect_url: str) -> str:
     return prepare_url(params, redirect_url)
 
 
+def _format_digital_file_name(value: str):
+    filename = value.split('/')[-1]
+
+    return 'bits_{}'.format(filename)
+
+
 def collect_data_for_fulfillment_email(order_pk, template, fulfillment_pk):
     fulfillment = Fulfillment.objects.get(pk=fulfillment_pk)
     email_data = collect_data_for_email(order_pk, template)
     lines = fulfillment.lines.all()
     physical_lines = [line for line in lines if not line.order_line.is_digital]
     digital_lines = [line for line in lines if line.order_line.is_digital]
-    digital_attachments = [(line.order_line.bits_digital_content.content_file.name, line.order_line.bits_digital_content.content_file.read(), None) for line in lines if line.order_line.is_digital]
+    digital_attachments = [(_format_digital_file_name(line.order_line.bits_digital_content.content_file.name), line.order_line.bits_digital_content.content_file.read(), None) for line in lines if line.order_line.is_digital]
     context = email_data["context"]
     context.update(
         {
