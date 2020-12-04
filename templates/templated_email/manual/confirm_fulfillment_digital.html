@@ -556,7 +556,9 @@
                                                                       src="{% order_line_thumbnail line %}"
                                                                       width="60"
                                                                       style="border: 0;height: auto !important;outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;">&nbsp; {% display_translated_product_name line %} {% price line.unit_price display_gross=order.display_gross_prices html=False %}&nbsp;</strong><br>
-&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; qty: {{ line.quantity }}</span></p>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span><span style="font-size:16px">&nbsp; &nbsp;Order #{{ order.pk }}<br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Qty: {{ line.quantity }}</span></p>
+                          &nbsp;
 
                           <hr>
                           {% endfor %}
@@ -568,21 +570,21 @@
                                 <span style="font-size:16px">Subtotal</span></td>
                               <td align="right" width="100"
                                   style="mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
-                                <span style="font-size:16px">£90</span></td>
+                                <span style="font-size:16px">{% price order.get_subtotal display_gross=order.display_gross_prices html=False %}</span></td>
                             </tr>
                             <tr>
                               <td style="mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
                                 <span style="font-size:16px">Taxes (included)</span></td>
                               <td align="right" width="100"
                                   style="mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
-                                <span style="font-size:16px">£0.00</span></td>
+                                <span style="font-size:16px">{% price order.total.tax html=False %}</span></td>
                             </tr>
                             <tr>
                               <td style="mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
                                 <span style="font-size:16px"><strong>Total&nbsp;</strong></span></td>
                               <td align="right" width="100"
                                   style="mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
-                                <span style="font-size:16px">£90</span></td>
+                                <span style="font-size:16px">{% price order.total display_gross=order.display_gross_prices html=False %}</span></td>
                             </tr>
                             </tbody>
                           </table>

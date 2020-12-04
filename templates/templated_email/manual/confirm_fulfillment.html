@@ -556,7 +556,9 @@
                                                                       src="{% order_line_thumbnail line %}"
                                                                       width="60"
                                                                       style="border: 0;height: auto !important;outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;">&nbsp; {% display_translated_product_name line %} {% price line.unit_price display_gross=order.display_gross_prices html=False %}&nbsp;</strong><br>
-&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; qty: {{ line.quantity }}</span></p>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span><span style="font-size:16px">&nbsp; &nbsp;Order #{{ order.pk }}<br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Qty: {{ line.quantity }}</span></p>
+                          &nbsp;
 
                           <hr>
                           {% endfor %}

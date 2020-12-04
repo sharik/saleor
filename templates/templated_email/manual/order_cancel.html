@@ -543,12 +543,13 @@
                           {% for line in order %}
 
                           <p dir="ltr"
-                             style="line-height: 200%;margin: 10px 0;padding: 0;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;color: #656565;font-family: Helvetica;font-size: 12px;text-align: left;"><span
-                                  style="font-size:16px"><strong><img height="33"
+                             style="line-height: 200%;margin: 10px 0;padding: 0;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;color: #656565;font-family: Helvetica;font-size: 12px;text-align: left;">
+                            <span style="font-size:16px"><strong><img height="33"
                                                                       src="{% order_line_thumbnail line %}"
                                                                       width="60"
-                                                                      style="border: 0;height: auto !important;outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;">&nbsp; {% display_translated_product_name line %} {% price line.unit_price display_gross=order.display_gross_prices html=False %}&nbsp;</strong><br>
-&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;qty: {{ line.quantity }}</span><br>
+                                                                      style="border: 0;height: auto !important;outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;">&nbsp;{% display_translated_product_name line %} {% price line.unit_price display_gross=order.display_gross_prices html=False %}&nbsp;</strong></span><br>
+                            <span style="font-size:16px">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Order #{{ order.pk }}<br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;&nbsp;Qty: {{ line.quantity }}</span><br>
                             <br>
                             &nbsp;</p>
 
