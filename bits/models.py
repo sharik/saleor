@@ -1,4 +1,6 @@
-from typing import Optional
+import datetime
+import json
+from typing import Optional, TYPE_CHECKING
 from uuid import uuid4
 
 from django.conf import settings
@@ -6,8 +8,14 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 from django.db.models import JSONField
 
+from bits.const import CAPTURE_DATE_FIELD_NAME
 from saleor.core.models import ModelWithMetadata
 from saleor.product.models import ProductVariant
+
+
+if TYPE_CHECKING:
+    from saleor.payment.models import Payment
+
 
 
 class BitsUser(models.Model):
@@ -45,3 +53,33 @@ class BitsDigitalContent(ModelWithMetadata):
         if not self.token:
             self.token = str(uuid4()).replace("-", "")
         super().save(force_insert, force_update, using, update_fields)
+
+
+def update_payment_capture_date(payment: "Payment", capture_date: str):
+    """
+    Save date when payment should be captured
+    """
+    if isinstance(capture_date, str):
+        capture_date = datetime.datetime.fromisoformat(capture_date)
+
+    extra_data = {
+        CAPTURE_DATE_FIELD_NAME: capture_date.isoformat()
+    }
+    payment.extra_data = json.dumps(extra_data)
+    payment.save(update_fields=["extra_data"])
+
+
+def get_payment_capture_date(payment: "Payment") -> Optional[datetime.datetime]:
+    """
+    Get date when payment should be captured
+    """
+    capture_date = None
+    if payment.extra_data:
+        extra_data = json.loads(payment.extra_data)
+
+        capture_date = extra_data.get(CAPTURE_DATE_FIELD_NAME, None)
+        if isinstance(capture_date, str):
+            capture_date = datetime.datetime.fromisoformat(capture_date)
+
+    return capture_date
+

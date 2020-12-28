@@ -15,6 +15,7 @@ from saleor.payment.models import Payment
 from saleor.plugins.base_plugin import BasePlugin, ConfigurationTypeField
 
 from ..api import BitsAPI
+from ..models import update_payment_capture_date
 # important to import. register in task system
 from ..tasks import verify_payment
 
@@ -209,6 +210,8 @@ class BitsGatewayPlugin(BasePlugin):
             raw_response['action_required_data'] = {
                 'client_secret': data['require_action_secret']}
 
+        update_payment_capture_date(payment, data['capture_date'])
+
         return GatewayResponse(
             transaction_id=data.get('id'),
             action_required=data.get('require_action'),
@@ -316,6 +319,8 @@ class BitsGatewayPlugin(BasePlugin):
         if data.get('require_action'):
             raw_response['action_required_data'] = {
                 'client_secret': data['require_action_secret']}
+
+        update_payment_capture_date(payment, data['capture_date'])
 
         return GatewayResponse(
             transaction_id=data.get('id'),
