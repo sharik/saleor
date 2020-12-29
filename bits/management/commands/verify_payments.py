@@ -3,7 +3,7 @@ import datetime
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
-from django.utils.timezone import now
+from django.utils.timezone import now, utc
 
 from bits.models import get_payment_capture_date
 from saleor.graphql.order.mutations.orders import try_payment_action
@@ -23,7 +23,7 @@ class Command(BaseCommand):
             # use default capture date
             capture_date = payment.created + datetime.timedelta(days=6, hours=20)
 
-        if datetime.datetime.utcnow() > capture_date:
+        if datetime.datetime.utcnow().replace(tzinfo=utc) > capture_date:
             return True
         return False
 

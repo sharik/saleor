@@ -7,6 +7,7 @@ from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 from django.db.models import JSONField
+from django.utils.timezone import is_naive, utc
 
 from bits.const import CAPTURE_DATE_FIELD_NAME
 from saleor.core.models import ModelWithMetadata
@@ -79,7 +80,9 @@ def get_payment_capture_date(payment: "Payment") -> Optional[datetime.datetime]:
 
         capture_date = extra_data.get(CAPTURE_DATE_FIELD_NAME, None)
         if isinstance(capture_date, str):
-            capture_date = datetime.datetime.fromisoformat(capture_date)
+            capture_date = datetime.datetime.fromisoformat(capture_date).replace(tzinfo=utc)
+        else:
+            capture_date = None
 
     return capture_date
 
