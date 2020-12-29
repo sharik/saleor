@@ -23,7 +23,7 @@ class Command(BaseCommand):
             # use default capture date
             capture_date = payment.created + datetime.timedelta(days=6, hours=20)
 
-        if now() > capture_date:
+        if datetime.datetime.utcnow() > capture_date:
             return True
         return False
 
