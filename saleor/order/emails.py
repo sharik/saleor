@@ -49,13 +49,16 @@ def collect_staff_order_notification_data(
     staff_notifications = StaffNotificationRecipient.objects.filter(
         active=True, user__is_active=True, user__is_staff=True
     )
-    staff = User.objects.staff()
     recipient_emails = [
         notification.get_email() for notification in staff_notifications
     ]
-    staff_emails = [user.email for user in staff]
 
-    data["recipient_list"] = list(set(recipient_emails + staff_emails))
+    staff = User.objects.staff().filter(groups__id__in=settings.EMAIL_ORDER_STAFF_NOTIFICATION_GROUP_IDS)
+    recipient_emails.extend((user.email for user in staff))
+    if not recipient_emails:
+        recipient_emails = [user.email for user in staff]
+
+    data["recipient_list"] = list(set(recipient_emails))
     return data
 
 
